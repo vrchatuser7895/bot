@@ -147,9 +147,9 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRole):
-        await ctx.send("❌ You do not have the required role to run this command.")
+        await ctx.send("You do not have the required role to run this command.")
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"⚠️ Missing required arguments. Usage: `{ctx.prefix}{ctx.command.signature}`")
+        await ctx.send(f"Missing required arguments. Usage: `{ctx.prefix}{ctx.command.name} <username>`")
     else:
         print(f"Error running command: {error}")
 
@@ -163,76 +163,76 @@ async def addtag(ctx):
         return m.author == ctx.author and m.channel == ctx.channel
 
     try:
-        await ctx.send("🤖 **Roblox Nametags Setup Wizard started!**\nReply with `cancel` at any point to exit.")
+        await ctx.send("Roblox Nametags Setup Wizard started!\nReply with `cancel` at any point to exit.")
         
         # 1. Target Username
-        await ctx.send("👤 **Step 1:** Enter the target Roblox username:")
+        await ctx.send("Step 1: Enter the target Roblox username:")
         msg = await bot.wait_for('message', timeout=60.0, check=check)
         if msg.content.strip().lower() == 'cancel':
-            await ctx.send("❌ Cancelled wizard.")
+            await ctx.send("Cancelled wizard.")
             return
         username = msg.content.strip()
         if not username:
-            await ctx.send("❌ Username cannot be empty. Cancelled.")
+            await ctx.send("Username cannot be empty. Cancelled.")
             return
             
         # 2. Tag Text
-        await ctx.send("🏷️ **Step 2:** Enter the tag text (e.g. OWNER, STAFF, Xnoctis):")
+        await ctx.send("Step 2: Enter the tag text (e.g. OWNER, STAFF, Xnoctis):")
         msg = await bot.wait_for('message', timeout=60.0, check=check)
         if msg.content.strip().lower() == 'cancel':
-            await ctx.send("❌ Cancelled wizard.")
+            await ctx.send("Cancelled wizard.")
             return
         tag_text = msg.content.strip()
         if not tag_text:
-            await ctx.send("❌ Tag text cannot be empty. Cancelled.")
+            await ctx.send("Tag text cannot be empty. Cancelled.")
             return
 
         # 3. Banner
-        await ctx.send("🖼️ **Step 3:** Enter the Banner/Background Asset ID (or reply `skip` for none):")
+        await ctx.send("Step 3: Enter the Banner/Background Asset ID (or reply `skip` for none):")
         msg = await bot.wait_for('message', timeout=60.0, check=check)
         if msg.content.strip().lower() == 'cancel':
-            await ctx.send("❌ Cancelled wizard.")
+            await ctx.send("Cancelled wizard.")
             return
         banner = "" if msg.content.strip().lower() == 'skip' else msg.content.strip()
 
         # 4. PFP
-        await ctx.send("🖼️ **Step 4:** Enter the PFP/Icon Asset ID (or reply `skip` for none):")
+        await ctx.send("Step 4: Enter the PFP/Icon Asset ID (or reply `skip` for none):")
         msg = await bot.wait_for('message', timeout=60.0, check=check)
         if msg.content.strip().lower() == 'cancel':
-            await ctx.send("❌ Cancelled wizard.")
+            await ctx.send("Cancelled wizard.")
             return
         pfp = "" if msg.content.strip().lower() == 'skip' else msg.content.strip()
 
         # 5. Border Hex
-        await ctx.send("🎨 **Step 5:** Enter the Border Color Hex (e.g. `#FF0000` or reply `skip` for none):")
+        await ctx.send("Step 5: Enter the Border Color Hex (e.g. `#FF0000` or reply `skip` for none):")
         msg = await bot.wait_for('message', timeout=60.0, check=check)
         if msg.content.strip().lower() == 'cancel':
-            await ctx.send("❌ Cancelled wizard.")
+            await ctx.send("Cancelled wizard.")
             return
         border_hex = "" if msg.content.strip().lower() == 'skip' else msg.content.strip()
 
         # 6. Text color / gradient choice
-        await ctx.send("🌈 **Step 6:** Do you want a text gradient? Reply `yes` or `no`:")
+        await ctx.send("Step 6: Do you want a text gradient? Reply `yes` or `no`:")
         msg = await bot.wait_for('message', timeout=60.0, check=check)
         if msg.content.strip().lower() == 'cancel':
-            await ctx.send("❌ Cancelled wizard.")
+            await ctx.send("Cancelled wizard.")
             return
         
         text_color = None
         text_gradient = None
         if msg.content.strip().lower() == 'yes':
             # Gradient colors
-            await ctx.send("🎨 **Step 6a:** Enter the gradient start color Hex (e.g. `#FF0000`):")
+            await ctx.send("Step 6a: Enter the gradient start color Hex (e.g. `#FF0000`):")
             msg = await bot.wait_for('message', timeout=60.0, check=check)
             if msg.content.strip().lower() == 'cancel':
-                await ctx.send("❌ Cancelled wizard.")
+                await ctx.send("Cancelled wizard.")
                 return
             start_hex = msg.content.strip()
             
-            await ctx.send("🎨 **Step 6b:** Enter the gradient end color Hex (e.g. `#0000FF`):")
+            await ctx.send("Step 6b: Enter the gradient end color Hex (e.g. `#0000FF`):")
             msg = await bot.wait_for('message', timeout=60.0, check=check)
             if msg.content.strip().lower() == 'cancel':
-                await ctx.send("❌ Cancelled wizard.")
+                await ctx.send("Cancelled wizard.")
                 return
             end_hex = msg.content.strip()
             
@@ -241,30 +241,30 @@ async def addtag(ctx):
             if c1 and c2:
                 text_gradient = [c1, c2]
             else:
-                await ctx.send("⚠️ Invalid colors entered for gradient. Skipping text gradient.")
+                await ctx.send("Invalid colors entered for gradient. Skipping text gradient.")
         else:
-            await ctx.send("🎨 **Step 6a:** Enter a single solid Text Color Hex (or reply `skip` for none):")
+            await ctx.send("Step 6a: Enter a single solid Text Color Hex (or reply `skip` for none):")
             msg = await bot.wait_for('message', timeout=60.0, check=check)
             if msg.content.strip().lower() == 'cancel':
-                await ctx.send("❌ Cancelled wizard.")
+                await ctx.send("Cancelled wizard.")
                 return
             if msg.content.strip().lower() != 'skip':
                 text_color = parse_hex_color(msg.content.strip())
 
         # 7. Tag Background Color
-        await ctx.send("🎨 **Step 7:** Enter the Primary Background Color Hex (e.g. `#141414` or reply `skip` for default dark):")
+        await ctx.send("Step 7: Enter the Primary Background Color Hex (e.g. `#141414` or reply `skip` for default dark):")
         msg = await bot.wait_for('message', timeout=60.0, check=check)
         if msg.content.strip().lower() == 'cancel':
-            await ctx.send("❌ Cancelled wizard.")
+            await ctx.send("Cancelled wizard.")
             return
         bg_hex = msg.content.strip()
         bg_color = parse_hex_color(bg_hex) or [20, 20, 20]
 
         # Syncing...
-        await ctx.send("🔄 Setup complete! Syncing tag to GitHub...")
+        await ctx.send("Setup complete! Syncing tag to GitHub...")
         success, sha, data = fetch_from_github()
         if not success:
-            await ctx.send(f"⚠️ Failed to fetch current database: `{sha}`")
+            await ctx.send(f"Failed to fetch current database: `{sha}`")
             return
 
         player_config = {
@@ -289,14 +289,14 @@ async def addtag(ctx):
 
         success, msg = update_github(data, username, sha)
         if success:
-            await ctx.send(f"✅ Successfully created/updated nametag for **{username}** on GitHub!")
+            await ctx.send(f"Successfully created/updated nametag for **{username}** on GitHub!")
         else:
-            await ctx.send(f"⚠️ Failed to sync changes to GitHub: `{msg}`")
+            await ctx.send(f"Failed to sync changes to GitHub: `{msg}`")
 
     except asyncio.TimeoutError:
-        await ctx.send("⏰ **Setup wizard timed out** due to inactivity (no reply for 60 seconds). Please try again.")
+        await ctx.send("Setup wizard timed out due to inactivity (no reply for 60 seconds). Please try again.")
     except Exception as e:
-        await ctx.send(f"⚠️ An error occurred in the setup wizard: {e}")
+        await ctx.send(f"An error occurred in the setup wizard: {e}")
 
 @bot.command()
 @commands.has_role(REQUIRED_ROLE_ID)
@@ -305,14 +305,14 @@ async def removetag(ctx, username: str):
     Remove a player's nametag config.
     Usage: !removetag <username>
     """
-    await ctx.send("🔄 Fetching latest database from GitHub...")
+    await ctx.send("Fetching latest database from GitHub...")
     success, sha, data = fetch_from_github()
     if not success:
-        await ctx.send(f"⚠️ Failed to fetch current tags from GitHub: `{sha}`")
+        await ctx.send(f"Failed to fetch current tags from GitHub: `{sha}`")
         return
         
     if "players" not in data or username.lower() not in data["players"]:
-        await ctx.send(f"❓ No nametag config found for **{username}**.")
+        await ctx.send(f"No nametag config found for **{username}**.")
         return
         
     del data["players"][username.lower()]
@@ -324,12 +324,12 @@ async def removetag(ctx, username: str):
     except Exception:
         pass
 
-    await ctx.send("🔄 Syncing removal to GitHub...")
+    await ctx.send("Syncing removal to GitHub...")
     success, msg = update_github(data, username, sha)
     if success:
-        await ctx.send(f"✅ Successfully removed nametag for **{username}** on GitHub!")
+        await ctx.send(f"Successfully removed nametag for **{username}** on GitHub!")
     else:
-        await ctx.send(f"⚠️ Failed to sync removal to GitHub: `{msg}`")
+        await ctx.send(f"Failed to sync removal to GitHub: `{msg}`")
 
 if __name__ == "__main__":
     if not TOKEN:
