@@ -600,23 +600,11 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             if (bannerId) {
                 if (bannerId.startsWith("http")) {
                     emulator.style.backgroundImage = `url('${bannerId}')`;
-                    emulator.style.backgroundSize = "cover";
-                    emulator.style.backgroundPosition = "center";
                 } else {
-                    fetch(`https://thumbnails.roblox.com/v1/assets?assetIds=${bannerId}&size=420x420&format=Png`)
-                    .then(res => res.json())
-                    .then(json => {
-                        if (json && json.data && json.data[0] && json.data[0].imageUrl) {
-                            emulator.style.backgroundImage = `url('${json.data[0].imageUrl}')`;
-                            emulator.style.backgroundSize = "cover";
-                            emulator.style.backgroundPosition = "center";
-                        }
-                    }).catch(() => {
-                        emulator.style.backgroundImage = `url('https://www.roblox.com/asset-thumbnail/image?assetId=${bannerId}&width=420&height=150&format=png')`;
-                        emulator.style.backgroundSize = "cover";
-                        emulator.style.backgroundPosition = "center";
-                    });
+                    emulator.style.backgroundImage = `url('/api/thumbnail?id=${bannerId}&size=420x420')`;
                 }
+                emulator.style.backgroundSize = "cover";
+                emulator.style.backgroundPosition = "center";
             } else {
                 emulator.style.backgroundImage = "none";
                 emulator.style.backgroundColor = bgColor;
@@ -629,15 +617,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 if (pfpId.startsWith("http")) {
                     emPfp.style.backgroundImage = `url('${pfpId}')`;
                 } else {
-                    fetch(`https://thumbnails.roblox.com/v1/assets?assetIds=${pfpId}&size=150x150&format=Png`)
-                    .then(res => res.json())
-                    .then(json => {
-                        if (json && json.data && json.data[0] && json.data[0].imageUrl) {
-                            emPfp.style.backgroundImage = `url('${json.data[0].imageUrl}')`;
-                        }
-                    }).catch(() => {
-                        emPfp.style.backgroundImage = `url('https://www.roblox.com/asset-thumbnail/image?assetId=${pfpId}&width=150&height=150&format=png')`;
-                    });
+                    emPfp.style.backgroundImage = `url('/api/thumbnail?id=${pfpId}&size=150x150')`;
                 }
             } else if (tagText.toLowerCase() === "xnoctis") {
                 emPfp.classList.remove("hidden");
@@ -1012,6 +992,41 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             self.send_cors_headers()
             self.end_headers()
             self.wfile.write(json.dumps({"success": success, "data": data, "error": sha if not success else None}).encode("utf-8"))
+        elif self.path.startswith("/api/thumbnail"):
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(self.path)
+            params = parse_qs(parsed.query)
+            asset_id = params.get("id", [""])[0].strip()
+            size = params.get("size", ["150x150"])[0].strip()
+            
+            if not asset_id.isdigit():
+                self.send_response(400)
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(b"Invalid asset id")
+                return
+                
+            roblox_url = f"https://thumbnails.roblox.com/v1/assets?assetIds={asset_id}&size={size}&format=Png"
+            try:
+                res = requests.get(roblox_url, timeout=5)
+                if res.status_code == 200:
+                    data = res.json()
+                    if data and data.get("data") and len(data["data"]) > 0:
+                        image_url = data["data"][0].get("imageUrl")
+                        if image_url:
+                            self.send_response(302)
+                            self.send_header("Location", image_url)
+                            self.send_cors_headers()
+                            self.end_headers()
+                            return
+            except Exception as e:
+                print(f"Error fetching roblox thumbnail: {e}")
+                
+            fallback_url = f"https://www.roblox.com/thumbs/asset.ashx?assetid={asset_id}&width=150&height=150"
+            self.send_response(302)
+            self.send_header("Location", fallback_url)
+            self.send_cors_headers()
+            self.end_headers()
         else:
             self.send_response(404)
             self.end_headers()
