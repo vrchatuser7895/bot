@@ -1,7 +1,7 @@
 {
   "players": {
     "mangolassinom": {
-      "tag": "TEST",
+      "tag": "hi",
       "primaryColor": [
         20,
         20,
@@ -16,7 +16,8 @@
         255,
         255,
         255
-      ]
+      ],
+      "createdBy": "Access 1"
     }
   }
 }
