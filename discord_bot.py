@@ -1,14 +1,12 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
 import json
 import os
 import re
 import requests
 import base64
-import asyncio
 from dotenv import load_dotenv
-from http.server import SimpleHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler
 from socketserver import TCPServer
 from threading import Thread
 
@@ -26,20 +24,1002 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Keep-alive web server to bypass free hosting limits on Render
-class KeepAliveHandler(SimpleHTTPRequestHandler):
-    def do_GET(self):
+# Premium single-page control panel HTML
+HTML_PANEL_CONTENT = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xnoctis Overhead Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0b0f;
+            --card-bg: rgba(20, 20, 28, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-purple: #8e2de2;
+            --accent-teal: #4a00e0;
+            --accent-blue: #00f2fe;
+            --text-color: #f5f5f7;
+            --sub-text: #8e8e93;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(142, 45, 226, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            color: var(--sub-text);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--sub-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-color);
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+        }
+
+        .color-picker-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            border: none;
+            background: none;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker-wrapper input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+
+        .color-picker-wrapper span {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .checkbox-group input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-blue);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-purple) 100%);
+            border: none;
+            border-radius: 10px;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 14px 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(142, 45, 226, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(142, 45, 226, 0.5);
+        }
+
+        .btn-delete {
+            background: #ff3b30;
+            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3);
+        }
+
+        .btn-delete:hover {
+            box-shadow: 0 6px 20px rgba(255, 59, 48, 0.5);
+        }
+
+        /* Preview Area */
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed var(--border-color);
+            border-radius: 14px;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            min-height: 180px;
+            position: relative;
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 0.75rem;
+            color: var(--sub-text);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        /* Roblox nametag emulator */
+        .nametag-emulator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 24px;
+            border-radius: 14px;
+            background-color: #141414;
+            min-width: 250px;
+            max-width: 380px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nametag-pfp {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background-color: #3a3a3a;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .nametag-text-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nametag-rank {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.2px;
+        }
+
+        .nametag-username {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #a0a0a0;
+        }
+
+        /* Players List */
+        .players-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .player-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--accent-blue);
+        }
+
+        .player-item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .player-item-name {
+            font-weight: 600;
+        }
+
+        .player-item-tag {
+            font-size: 0.75rem;
+            background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-purple) 100%);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        /* Password modal overlay */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 8, 0.95);
+            backdrop-filter: blur(12px);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Scrollbar styles */
+        .players-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .players-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+        .players-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .players-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Xnoctis Overhead Panel</h1>
+        <p>Manage and customize your overhead nametags dynamically</p>
+    </header>
+
+    <!-- Password Modal -->
+    <div id="auth-modal" class="auth-overlay hidden">
+        <div class="auth-card">
+            <h2>Enter Access Key</h2>
+            <p style="color: var(--sub-text); font-size: 0.9rem;">Authentication is required to make database modifications.</p>
+            <input type="password" id="auth-pw-input" class="form-control" placeholder="Enter Access Password...">
+            <button class="btn" onclick="submitAuth()">Authenticate</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Editor Card -->
+        <div class="card">
+            <h2>Nametag Editor</h2>
+            
+            <div class="form-group">
+                <label for="username">Target Roblox Username</label>
+                <input type="text" id="username" class="form-control" placeholder="e.g. vrchatuser7895" oninput="updatePreview()">
+            </div>
+
+            <div class="form-group">
+                <label for="tagText">Tag Text</label>
+                <input type="text" id="tagText" class="form-control" placeholder="e.g. OWNER, DEVELOPER" oninput="updatePreview()">
+            </div>
+
+            <div class="color-picker-row">
+                <div class="form-group">
+                    <label>Tag Background</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="bgColorPicker" value="#141414" oninput="updatePreview()">
+                        <span id="bgColorHex">#141414</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Username Color</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="userColorPicker" value="#a0a0a0" oninput="updatePreview()">
+                        <span id="userColorHex">#A0A0A0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Border Configuration -->
+            <div class="form-group" style="gap: 12px;">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="useBorder" onchange="toggleBorderOption()">
+                    Use Outline Border?
+                </label>
+                <div id="border-picker-wrapper" class="color-picker-wrapper hidden">
+                    <input type="color" id="borderColorPicker" value="#ffffff" oninput="updatePreview()">
+                    <span id="borderColorHex">#FFFFFF</span>
+                </div>
+            </div>
+
+            <!-- Text Color configuration (Solid vs Gradient) -->
+            <div class="form-group" style="gap: 12px;">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="useGradient" onchange="toggleGradientOption()">
+                    Use Text Color Gradient?
+                </label>
+                
+                <div id="solid-text-picker" class="color-picker-wrapper">
+                    <input type="color" id="textColorPicker" value="#ffffff" oninput="updatePreview()">
+                    <span id="textColorHex">#FFFFFF</span>
+                </div>
+
+                <div id="gradient-pickers" class="color-picker-row hidden">
+                    <div class="form-group">
+                        <label>Gradient Start</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="gradStartPicker" value="#8e2de2" oninput="updatePreview()">
+                            <span id="gradStartHex">#8E2DE2</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Gradient End</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="gradEndPicker" value="#4a00e0" oninput="updatePreview()">
+                            <span id="gradEndHex">#4A00E0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-picker-row">
+                <div class="form-group">
+                    <label for="pfpId">PFP Asset ID (Optional)</label>
+                    <input type="text" id="pfpId" class="form-control" placeholder="e.g. 128634152988614" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label for="bannerId">Banner Asset ID (Optional)</label>
+                    <input type="text" id="bannerId" class="form-control" placeholder="e.g. 137782422455419" oninput="updatePreview()">
+                </div>
+            </div>
+
+            <div class="preview-container">
+                <div class="preview-label">Live Tag Emulator</div>
+                
+                <div class="nametag-emulator" id="emulator">
+                    <div class="nametag-pfp" id="emulator-pfp"></div>
+                    <div class="nametag-text-block">
+                        <div class="nametag-rank" id="emulator-rank">TAG TEXT</div>
+                        <div class="nametag-username" id="emulator-user">@Username</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; width: 100%;">
+                <button class="btn" style="flex: 2;" onclick="saveTag()">Save Nametag</button>
+                <button id="delete-btn" class="btn btn-delete hidden" style="flex: 1;" onclick="deleteTag()">Delete</button>
+            </div>
+        </div>
+
+        <!-- Database List Card -->
+        <div class="card">
+            <h2>Current Configurations</h2>
+            <div class="players-list" id="players-list">
+                <div style="color: var(--sub-text); text-align: center; padding-top: 50px;">Loading database...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDatabase = { players: {} };
+        let activeEditUser = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchTags();
+            // Automatically prompt for password if stored
+            if (!localStorage.getItem("panel_pw")) {
+                document.getElementById("auth-modal").classList.remove("hidden");
+            }
+        });
+
+        function submitAuth() {
+            const pw = document.getElementById("auth-pw-input").value;
+            localStorage.setItem("panel_pw", pw);
+            document.getElementById("auth-modal").classList.add("hidden");
+            fetchTags();
+        }
+
+        function toggleBorderOption() {
+            const useBorder = document.getElementById("useBorder").checked;
+            const borderWrapper = document.getElementById("border-picker-wrapper");
+            if (useBorder) {
+                borderWrapper.classList.remove("hidden");
+            } else {
+                borderWrapper.classList.add("hidden");
+            }
+            updatePreview();
+        }
+
+        function toggleGradientOption() {
+            const useGrad = document.getElementById("useGradient").checked;
+            const solidPicker = document.getElementById("solid-text-picker");
+            const gradPickers = document.getElementById("gradient-pickers");
+            if (useGrad) {
+                solidPicker.classList.add("hidden");
+                gradPickers.classList.remove("hidden");
+            } else {
+                solidPicker.classList.remove("hidden");
+                gradPickers.classList.add("hidden");
+            }
+            updatePreview();
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [
+                parseInt(result[1], 16),
+                parseInt(result[2], 16),
+                parseInt(result[3], 16)
+            ] : [255, 255, 255];
+        }
+
+        function rgbToHex(rgb) {
+            if (!rgb || rgb.length < 3) return "#ffffff";
+            return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+        }
+
+        function extractAssetDigits(assetId) {
+            if (!assetId) return "";
+            const digits = assetId.match(/\\d+/);
+            return digits ? digits[0] : assetId;
+        }
+
+        // Live preview synchronization
+        function updatePreview() {
+            const emulator = document.getElementById("emulator");
+            const emRank = document.getElementById("emulator-rank");
+            const emUser = document.getElementById("emulator-user");
+            const emPfp = document.getElementById("emulator-pfp");
+
+            // Text content
+            const username = document.getElementById("username").value.trim() || "Username";
+            const tagText = document.getElementById("tagText").value.trim() || "TAG TEXT";
+            emRank.innerText = (tagText.toLowerCase() === "xnoctis") ? "XNOCTIS" : tagText;
+            emUser.innerText = "@" + username;
+
+            // Hex updates
+            document.getElementById("bgColorHex").innerText = document.getElementById("bgColorPicker").value.toUpperCase();
+            document.getElementById("userColorHex").innerText = document.getElementById("userColorPicker").value.toUpperCase();
+            document.getElementById("borderColorHex").innerText = document.getElementById("borderColorPicker").value.toUpperCase();
+            document.getElementById("textColorHex").innerText = document.getElementById("textColorPicker").value.toUpperCase();
+            document.getElementById("gradStartHex").innerText = document.getElementById("gradStartPicker").value.toUpperCase();
+            document.getElementById("gradEndHex").innerText = document.getElementById("gradEndPicker").value.toUpperCase();
+
+            // Background & Banner
+            const bannerId = extractAssetDigits(document.getElementById("bannerId").value.trim());
+            const bgColor = document.getElementById("bgColorPicker").value;
+            if (bannerId) {
+                emulator.style.backgroundImage = `url('https://www.roblox.com/asset-thumbnail/image?assetId=${bannerId}&width=420&height=150&format=png')`;
+                emulator.style.backgroundSize = "cover";
+                emulator.style.backgroundPosition = "center";
+            } else {
+                emulator.style.backgroundImage = "none";
+                emulator.style.backgroundColor = bgColor;
+            }
+
+            // PFP
+            const pfpId = extractAssetDigits(document.getElementById("pfpId").value.trim());
+            if (pfpId) {
+                emPfp.classList.remove("hidden");
+                emPfp.style.backgroundImage = `url('https://www.roblox.com/asset-thumbnail/image?assetId=${pfpId}&width=150&height=150&format=png')`;
+            } else if (tagText.toLowerCase() === "xnoctis") {
+                emPfp.classList.remove("hidden");
+                emPfp.style.backgroundImage = "url('https://www.roblox.com/asset-thumbnail/image?assetId=94120267834005&width=150&height=150&format=png')";
+            } else {
+                emPfp.classList.add("hidden");
+            }
+
+            // Border
+            const useBorder = document.getElementById("useBorder").checked;
+            const borderColor = document.getElementById("borderColorPicker").value;
+            if (useBorder && tagText.toLowerCase() !== "xnoctis") {
+                emulator.style.borderColor = borderColor;
+            } else {
+                emulator.style.borderColor = "transparent";
+            }
+
+            // Text Colors & Gradients
+            const usernameColor = document.getElementById("userColorPicker").value;
+            emUser.style.color = (tagText.toLowerCase() === "xnoctis") ? "#a0a0a0" : usernameColor;
+
+            const useGrad = document.getElementById("useGradient").checked;
+            if (useGrad || tagText.toLowerCase() === "xnoctis") {
+                const start = (tagText.toLowerCase() === "xnoctis") ? "#add8e6" : document.getElementById("gradStartPicker").value;
+                const end = (tagText.toLowerCase() === "xnoctis") ? "#ffffff" : document.getElementById("gradEndPicker").value;
+                emRank.style.background = `linear-gradient(90deg, ${start} 0%, ${end} 100%)`;
+                emRank.style.webkitBackgroundClip = "text";
+                emRank.style.webkitTextFillColor = "transparent";
+            } else {
+                emRank.style.background = "none";
+                emRank.style.webkitTextFillColor = document.getElementById("textColorPicker").value;
+            }
+        }
+
+        // Fetch all configurations from database
+        function fetchTags() {
+            fetch("/api/tags")
+                .then(res => {
+                    if (res.status === 401) {
+                        document.getElementById("auth-modal").classList.remove("hidden");
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(payload => {
+                    if (!payload || !payload.success) return;
+                    currentDatabase = payload.data || { players: {} };
+                    renderPlayersList();
+                })
+                .catch(err => console.error("Fetch failed", err));
+        }
+
+        // Render current player list cards
+        function renderPlayersList() {
+            const listEl = document.getElementById("players-list");
+            listEl.innerHTML = "";
+            const players = currentDatabase.players || {};
+            const keys = Object.keys(players);
+            
+            if (keys.length === 0) {
+                listEl.innerHTML = `<div style="color: var(--sub-text); text-align: center; padding-top: 50px;">No configurations found in database.</div>`;
+                return;
+            }
+
+            keys.forEach(username => {
+                const config = players[username];
+                const item = document.createElement("div");
+                item.className = "player-item";
+                item.onclick = () => selectUserToEdit(username, config);
+
+                item.innerHTML = `
+                    <div class="player-item-info">
+                        <div class="player-item-name">${username}</div>
+                    </div>
+                    <div class="player-item-tag">${config.tag || "XNOCTIS"}</div>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        // Selected user card click
+        function selectUserToEdit(username, config) {
+            activeEditUser = username;
+            document.getElementById("username").value = username;
+            document.getElementById("tagText").value = config.tag || "";
+            document.getElementById("pfpId").value = extractAssetDigits(config.image || "");
+            document.getElementById("bannerId").value = extractAssetDigits(config.bgImage || "");
+
+            // Colors setup
+            document.getElementById("bgColorPicker").value = rgbToHex(config.primaryColor || [20, 20, 20]);
+            document.getElementById("userColorPicker").value = rgbToHex(config.displayNameColor || [160, 160, 160]);
+
+            // Border setup
+            if (config.borderColor && config.borderColor !== "none") {
+                document.getElementById("useBorder").checked = true;
+                document.getElementById("borderColorPicker").value = rgbToHex(config.borderColor);
+                document.getElementById("border-picker-wrapper").classList.remove("hidden");
+            } else {
+                document.getElementById("useBorder").checked = false;
+                document.getElementById("border-picker-wrapper").classList.add("hidden");
+            }
+
+            // Text styling setup
+            if (config.textGradient && config.textGradient.length >= 2) {
+                document.getElementById("useGradient").checked = true;
+                document.getElementById("gradStartPicker").value = rgbToHex(config.textGradient[0]);
+                document.getElementById("gradEndPicker").value = rgbToHex(config.textGradient[1]);
+                document.getElementById("solid-text-picker").classList.add("hidden");
+                document.getElementById("gradient-pickers").classList.remove("hidden");
+            } else {
+                document.getElementById("useGradient").checked = false;
+                document.getElementById("textColorPicker").value = rgbToHex(config.textColor || [255, 255, 255]);
+                document.getElementById("solid-text-picker").classList.remove("hidden");
+                document.getElementById("gradient-pickers").classList.add("hidden");
+            }
+
+            // Enable delete button
+            document.getElementById("delete-btn").classList.remove("hidden");
+            updatePreview();
+        }
+
+        // Save nametag configurations to DB
+        function saveTag() {
+            const username = document.getElementById("username").value.trim().toLowerCase();
+            const tagText = document.getElementById("tagText").value.trim();
+
+            if (!username || !tagText) {
+                alert("Roblox Username and Tag Text are required.");
+                return;
+            }
+
+            const payload = {
+                username: username,
+                config: {
+                    tag: tagText,
+                    primaryColor: hexToRgb(document.getElementById("bgColorPicker").value),
+                    displayNameColor: hexToRgb(document.getElementById("userColorPicker").value)
+                }
+            };
+
+            // Banner image
+            const bannerId = extractAssetDigits(document.getElementById("bannerId").value.trim());
+            if (bannerId) payload.config.bgImage = `rbxassetid://${bannerId}`;
+
+            // PFP image
+            const pfpId = extractAssetDigits(document.getElementById("pfpId").value.trim());
+            if (pfpId) payload.config.image = `rbxassetid://${pfpId}`;
+
+            // Border
+            if (document.getElementById("useBorder").checked) {
+                payload.config.borderColor = hexToRgb(document.getElementById("borderColorPicker").value);
+            }
+
+            // Text colors
+            if (document.getElementById("useGradient").checked) {
+                payload.config.textGradient = [
+                    hexToRgb(document.getElementById("gradStartPicker").value),
+                    hexToRgb(document.getElementById("gradEndPicker").value)
+                ];
+            } else {
+                payload.config.textColor = hexToRgb(document.getElementById("textColorPicker").value);
+            }
+
+            const pw = localStorage.getItem("panel_pw") || "";
+
+            fetch("/api/save", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Password": pw
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                if (res.status === 401) {
+                    alert("Unauthorized password.");
+                    document.getElementById("auth-modal").classList.remove("hidden");
+                    return;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.success) {
+                    alert("Configuration saved successfully!");
+                    fetchTags();
+                    resetForm();
+                } else {
+                    alert("Failed to save configuration: " + (data ? data.message : "Unknown error"));
+                }
+            })
+            .catch(err => alert("Error saving configurations: " + err));
+        }
+
+        // Delete tag from database
+        function deleteTag() {
+            if (!activeEditUser) return;
+            if (!confirm(`Are you sure you want to delete the tag for ${activeEditUser}?`)) return;
+
+            const pw = localStorage.getItem("panel_pw") || "";
+
+            fetch("/api/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Password": pw
+                },
+                body: JSON.stringify({ username: activeEditUser })
+            })
+            .then(res => {
+                if (res.status === 401) {
+                    alert("Unauthorized password.");
+                    document.getElementById("auth-modal").classList.remove("hidden");
+                    return;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.success) {
+                    alert("Tag deleted successfully!");
+                    fetchTags();
+                    resetForm();
+                } else {
+                    alert("Failed to delete tag: " + (data ? data.message : "Unknown error"));
+                }
+            })
+            .catch(err => alert("Error deleting tag: " + err));
+        }
+
+        function resetForm() {
+            activeEditUser = null;
+            document.getElementById("username").value = "";
+            document.getElementById("tagText").value = "";
+            document.getElementById("pfpId").value = "";
+            document.getElementById("bannerId").value = "";
+            document.getElementById("useBorder").checked = false;
+            document.getElementById("border-picker-wrapper").classList.add("hidden");
+            document.getElementById("useGradient").checked = false;
+            document.getElementById("solid-text-picker").classList.remove("hidden");
+            document.getElementById("gradient-pickers").classList.add("hidden");
+            document.getElementById("delete-btn").classList.add("hidden");
+            updatePreview();
+        }
+    </script>
+</body>
+</html>
+"""
+
+# Custom Handler for parsing API calls and serving Control Panel Dashboard
+class ControlPanelHandler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        # Suppress server request logs to keep Render's consoles clean
+        pass
+
+    def send_cors_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Password")
+
+    def do_OPTIONS(self):
         self.send_response(200)
-        self.send_header("Content-type", "text/plain")
+        self.send_cors_headers()
         self.end_headers()
-        self.wfile.write(b"Bot is alive!")
+
+    def do_GET(self):
+        if self.path == "/":
+            self.send_response(200)
+            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(HTML_PANEL_CONTENT.encode("utf-8"))
+        elif self.path == "/api/tags":
+            success, sha, data = fetch_from_github()
+            self.send_response(200 if success else 500)
+            self.send_header("Content-type", "application/json")
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": success, "data": data, "error": sha if not success else None}).encode("utf-8"))
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Not found")
+
+    def do_POST(self):
+        if self.path == "/api/save":
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            payload = json.loads(post_data.decode('utf-8'))
+            
+            # Verify password protection
+            provided_pw = self.headers.get("X-Password", "")
+            expected_pw = os.getenv("PANEL_PASSWORD", "")
+            if expected_pw and provided_pw != expected_pw:
+                self.send_response(401)
+                self.send_header("Content-type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Unauthorized"}).encode("utf-8"))
+                return
+                
+            username = payload.get("username", "").strip().lower()
+            config = payload.get("config", {})
+            
+            if not username:
+                self.send_response(400)
+                self.send_header("Content-type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Username is required"}).encode("utf-8"))
+                return
+
+            success, sha, data = fetch_from_github()
+            if not success:
+                self.send_response(500)
+                self.send_header("Content-type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": f"Failed to fetch tags: {sha}"}).encode("utf-8"))
+                return
+                
+            data["players"][username] = config
+            
+            # Save local cache
+            try:
+                with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2)
+            except Exception:
+                pass
+                
+            ok, err = update_github(data, username, sha)
+            self.send_response(200 if ok else 500)
+            self.send_header("Content-type", "application/json")
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": ok, "message": "Success" if ok else err}).encode("utf-8"))
+            
+        elif self.path == "/api/delete":
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            payload = json.loads(post_data.decode('utf-8'))
+            
+            provided_pw = self.headers.get("X-Password", "")
+            expected_pw = os.getenv("PANEL_PASSWORD", "")
+            if expected_pw and provided_pw != expected_pw:
+                self.send_response(401)
+                self.send_header("Content-type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Unauthorized"}).encode("utf-8"))
+                return
+                
+            username = payload.get("username", "").strip().lower()
+            if not username:
+                self.send_response(400)
+                self.send_cors_headers()
+                self.end_headers()
+                return
+
+            success, sha, data = fetch_from_github()
+            if not success:
+                self.send_response(500)
+                self.send_header("Content-type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": f"Failed to fetch tags: {sha}"}).encode("utf-8"))
+                return
+                
+            if username in data.get("players", {}):
+                del data["players"][username]
+                
+                try:
+                    with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, indent=2)
+                except Exception:
+                    pass
+                    
+                ok, err = update_github(data, username, sha)
+                self.send_response(200 if ok else 500)
+                self.send_header("Content-type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": ok, "message": "Deleted successfully" if ok else err}).encode("utf-8"))
+            else:
+                self.send_response(404)
+                self.send_header("Content-type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Player not found"}).encode("utf-8"))
 
 def run_web():
     port = int(os.getenv("PORT", 8080))
     TCPServer.allow_reuse_address = True
     try:
-        with TCPServer(("0.0.0.0", port), KeepAliveHandler) as httpd:
-            print(f"Keep-alive web server running on port {port}")
+        with TCPServer(("0.0.0.0", port), ControlPanelHandler) as httpd:
+            print(f"Control panel web server running on port {port}")
             httpd.serve_forever()
     except Exception as e:
         print(f"Web server failed to start: {e}")
@@ -76,19 +1056,6 @@ def format_asset_id(asset_id):
         else:
             return asset_id
     return f"rbxassetid://{asset_id}"
-
-def parse_text_color_or_gradient(text_val):
-    if not text_val or text_val.lower() in ["none", "skip"]:
-        return None, None
-    for sep in ['-', ',', '_']:
-        if sep in text_val:
-            parts = text_val.split(sep)
-            if len(parts) >= 2:
-                c1 = parse_hex_color(parts[0])
-                c2 = parse_hex_color(parts[1])
-                if c1 and c2:
-                    return None, [c1, c2]
-    return parse_hex_color(text_val), None
 
 # Fetch latest Tags.json directly from GitHub API to avoid stale local filesystem caches
 def fetch_from_github():
@@ -155,7 +1122,7 @@ def update_github(data, username, sha=None):
 
 # Helper function to check role permissions
 def is_user_authorized(member):
-    # 1. Allow bot developers/owners if configured, or server owner/administrators
+    # Allow server owner/administrators
     if member.guild_permissions.administrator or member == member.guild.owner:
         return True
         
@@ -172,256 +1139,11 @@ def is_user_authorized(member):
             
     return False
 
-# Local configurations storage helper
-def save_local_cache(data):
-    try:
-        with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2)
-    except Exception:
-        pass
-
-# ================= Discord UI Component Interactions =================
-
-# Modal for Border Color
-class BorderColorModal(discord.ui.Modal, title="Set Border Color"):
-    def __init__(self, username):
-        super().__init__()
-        self.username = username
-
-    color = discord.ui.TextInput(
-        label="Border Hex Color",
-        placeholder="e.g. #FF0000 or skip/none to remove border",
-        required=True
-    )
-
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        success, sha, data = fetch_from_github()
-        if not success:
-            await interaction.followup.send(f"Failed to fetch tags: `{sha}`", ephemeral=True)
-            return
-
-        user_lower = self.username.lower()
-        if user_lower in data["players"]:
-            c = parse_hex_color(self.color.value.strip())
-            if c:
-                data["players"][user_lower]["borderColor"] = c
-            else:
-                data["players"][user_lower].pop("borderColor", None)
-            save_local_cache(data)
-            
-            # Re-send styling dashboard
-            view = StylingOptionsView(self.username)
-            await interaction.followup.send(
-                f"Border Color updated! Configure additional styling options for **{self.username}**:",
-                view=view,
-                ephemeral=True
-            )
-        else:
-            await interaction.followup.send("Player configuration not found.", ephemeral=True)
-
-# Modal for Background Color
-class BgColorModal(discord.ui.Modal, title="Set Background Color"):
-    def __init__(self, username):
-        super().__init__()
-        self.username = username
-
-    color = discord.ui.TextInput(
-        label="Primary Background Hex Color",
-        placeholder="e.g. #141414 or skip/none for default dark",
-        required=True
-    )
-
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        success, sha, data = fetch_from_github()
-        if not success:
-            await interaction.followup.send(f"Failed to fetch tags: `{sha}`", ephemeral=True)
-            return
-
-        user_lower = self.username.lower()
-        if user_lower in data["players"]:
-            c = parse_hex_color(self.color.value.strip()) or [20, 20, 20]
-            data["players"][user_lower]["primaryColor"] = c
-            save_local_cache(data)
-            
-            # Re-send styling dashboard
-            view = StylingOptionsView(self.username)
-            await interaction.followup.send(
-                f"Background Color updated! Configure additional styling options for **{self.username}**:",
-                view=view,
-                ephemeral=True
-            )
-        else:
-            await interaction.followup.send("Player configuration not found.", ephemeral=True)
-
-# Modal for Username (Display Name) Color
-class UserColorModal(discord.ui.Modal, title="Set Username Text Color"):
-    def __init__(self, username):
-        super().__init__()
-        self.username = username
-
-    color = discord.ui.TextInput(
-        label="Username Text Hex Color",
-        placeholder="e.g. #A0A0A0 or skip/none for default gray",
-        required=True
-    )
-
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        success, sha, data = fetch_from_github()
-        if not success:
-            await interaction.followup.send(f"Failed to fetch tags: `{sha}`", ephemeral=True)
-            return
-
-        user_lower = self.username.lower()
-        if user_lower in data["players"]:
-            c = parse_hex_color(self.color.value.strip())
-            if c:
-                data["players"][user_lower]["displayNameColor"] = c
-            else:
-                data["players"][user_lower].pop("displayNameColor", None)
-            save_local_cache(data)
-            
-            # Re-send styling dashboard
-            view = StylingOptionsView(self.username)
-            await interaction.followup.send(
-                f"Username Color updated! Configure additional styling options for **{self.username}**:",
-                view=view,
-                ephemeral=True
-            )
-        else:
-            await interaction.followup.send("Player configuration not found.", ephemeral=True)
-
-# Dashboard styling options view
-class StylingOptionsView(discord.ui.View):
-    def __init__(self, username):
-        super().__init__(timeout=180.0)
-        self.username = username
-
-    @discord.ui.button(label="Outline/Border Color", style=discord.ButtonStyle.secondary)
-    async def set_border(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(BorderColorModal(self.username))
-
-    @discord.ui.button(label="Background Color", style=discord.ButtonStyle.secondary)
-    async def set_bg(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(BgColorModal(self.username))
-
-    @discord.ui.button(label="Username Color", style=discord.ButtonStyle.secondary)
-    async def set_username_color(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(UserColorModal(self.username))
-
-    @discord.ui.button(label="Save & Sync to GitHub", style=discord.ButtonStyle.success)
-    async def finish_sync(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        success, sha, data = fetch_from_github()
-        if not success:
-            await interaction.followup.send(f"Failed to fetch current database: `{sha}`", ephemeral=True)
-            return
-
-        ok, err = update_github(data, self.username, sha)
-        if ok:
-            await interaction.followup.send(f"Successfully configured and synced nametag for **{self.username}** on GitHub!", ephemeral=True)
-        else:
-            await interaction.followup.send(f"Failed to sync changes to GitHub: `{err}`", ephemeral=True)
-
-# Main Creation Modal Dialog popup
-class CreateNametagModal(discord.ui.Modal, title="Create / Edit Nametag"):
-    username = discord.ui.TextInput(
-        label="Roblox Username",
-        placeholder="e.g. vrchatuser7895",
-        required=True
-    )
-    tag_text = discord.ui.TextInput(
-        label="Tag Text",
-        placeholder="e.g. OWNER, DEVELOPER, Xnoctis",
-        required=True
-    )
-    pfp_id = discord.ui.TextInput(
-        label="PFP Asset ID (Optional)",
-        placeholder="e.g. 128634152988614 (or skip)",
-        required=False
-    )
-    banner_id = discord.ui.TextInput(
-        label="Banner Asset ID (Optional)",
-        placeholder="e.g. 137782422455419 (or skip)",
-        required=False
-    )
-    text_color = discord.ui.TextInput(
-        label="Text Color Hex or Gradient (Optional)",
-        placeholder="e.g. #FFFFFF or #FF0000-#0000FF (gradient)",
-        required=False
-    )
-
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        success, sha, data = fetch_from_github()
-        if not success:
-            await interaction.followup.send(f"Failed to fetch current database: `{sha}`", ephemeral=True)
-            return
-
-        user_lower = self.username.value.strip().lower()
-        tag = self.tag_text.value.strip()
-        pfp = self.pfp_id.value.strip()
-        banner = self.banner_id.value.strip()
-        text = self.text_color.value.strip()
-
-        # Parse text color or gradient
-        tc, tg = parse_text_color_or_gradient(text)
-
-        # Build configurations
-        player_config = {
-            "tag": tag,
-            "bgImage": format_asset_id(banner),
-            "image": format_asset_id(pfp),
-            "textColor": tc,
-            "textGradient": tg,
-            "primaryColor": [20, 20, 20] # default background
-        }
-
-        # Keep existing custom border/background/username styling if editing an existing user
-        if user_lower in data["players"]:
-            existing = data["players"][user_lower]
-            if "borderColor" in existing:
-                player_config["borderColor"] = existing["borderColor"]
-            if "primaryColor" in existing:
-                player_config["primaryColor"] = existing["primaryColor"]
-            if "displayNameColor" in existing:
-                player_config["displayNameColor"] = existing["displayNameColor"]
-
-        player_config = {k: v for k, v in player_config.items() if v is not None and v != ""}
-        data["players"][user_lower] = player_config
-        save_local_cache(data)
-
-        # Offer further custom color settings
-        view = StylingOptionsView(self.username.value.strip())
-        await interaction.followup.send(
-            f"Base nametag config registered for **{self.username.value.strip()}**.\n"
-            f"Would you like to customize background, border, or username colors?",
-            view=view,
-            ephemeral=True
-        )
-
-# View holding a single button to trigger the creation modal
-class TriggerModalView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=60.0)
-
-    @discord.ui.button(label="Open Editor Modal", style=discord.ButtonStyle.primary)
-    async def open_modal(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(CreateNametagModal())
-
 # ================= Discord Bot Commands =================
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
-    # Sync Slash Commands
-    try:
-        synced = await bot.tree.sync()
-        print(f"Successfully synced {len(synced)} Slash Commands.")
-    except Exception as e:
-        print(f"Failed to sync Slash Commands: {e}")
 
 # Command error handling (e.g. missing role restriction)
 @bot.event
@@ -433,24 +1155,24 @@ async def on_command_error(ctx, error):
     else:
         print(f"Error running command: {error}")
 
-# Slash Command for /addtag to trigger modal immediately
-@bot.tree.command(name="addtag", description="Add or edit a player nametag")
-async def slash_addtag(interaction: discord.Interaction):
-    if not is_user_authorized(interaction.user):
-        await interaction.response.send_message("You do not have the required role to run this command.", ephemeral=True)
-        return
-    # Immediately trigger popup modal window
-    await interaction.response.send_modal(CreateNametagModal())
-
-# Prefix Command for !addtag (sends a single button to open modal)
 @bot.command()
 async def addtag(ctx):
+    """
+    Directs the user to the visual Web Control Panel to create, edit, and pick colors.
+    """
     if not is_user_authorized(ctx.author):
         await ctx.send("You do not have the required role to run this command.")
         return
+
+    url = os.getenv("PANEL_URL", "https://bot-kzu7.onrender.com")
     
-    view = TriggerModalView()
-    await ctx.send("Click the button below to open the configuration popup:", view=view)
+    embed = discord.Embed(
+        title="Nametags Visual Control Panel",
+        description="Configure your nametags visually with color pickers, live previews, and automatic syncing!",
+        color=discord.Color.purple()
+    )
+    embed.add_field(name="Link to Panel", value=f"[Click here to open the Control Panel]({url})")
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def removetag(ctx, username: str):
@@ -469,7 +1191,13 @@ async def removetag(ctx, username: str):
         return
         
     del data["players"][username.lower()]
-    save_local_cache(data)
+    
+    # Save a local cache copy
+    try:
+        with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
 
     await ctx.send("Syncing removal to GitHub...")
     success, msg = update_github(data, username, sha)
