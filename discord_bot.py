@@ -344,26 +344,50 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             display: none !important;
         }
 
-        /* Scrollbar styles */
-        .players-list::-webkit-scrollbar {
-            width: 6px;
+        /* Overlay and Dialog styling */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .players-list::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .players-list::-webkit-scrollbar-thumb {
-            background: var(--border-gray);
-            border-radius: 10px;
+
+        .auth-card {
+            background: var(--card-black);
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Xnoctis Overhead Panel</h1>
-        <p>Manage and customize your overhead nametags dynamically</p>
-    </header>
+    <!-- Action Option Modal -->
+    <div id="action-modal" class="auth-overlay hidden">
+        <div class="auth-card" style="max-width: 320px; text-align: center;">
+            <h2 id="action-title" style="font-size: 1.1rem; border-bottom: none; padding-bottom: 0; margin-bottom: 5px;">Manage Tag</h2>
+            <p id="action-subtitle" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">For player</p>
+            <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <button class="btn" style="background: #ffffff; color: #000000;" onclick="executeEditFromModal()">Edit Tag</button>
+                <button class="btn btn-delete" onclick="executeDeleteFromModal()">Delete Tag</button>
+                <button class="btn" style="background: #1f1f1f; color: #ffffff;" onclick="closeActionModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-    <div class="container">
+    <div class="container" style="margin-top: 40px;">
         <!-- Editor Card -->
         <div class="card">
             <h2>Nametag Editor</h2>
@@ -674,8 +698,43 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             });
         }
 
-        // Selected user card click
+        let modalActiveUser = null;
+        let modalActiveConfig = null;
+
+        // Selected user card click -> Show action modal options
         function selectUserToEdit(username, config) {
+            modalActiveUser = username;
+            modalActiveConfig = config;
+            document.getElementById("action-subtitle").innerText = "For player @" + username;
+            document.getElementById("action-modal").classList.remove("hidden");
+        }
+
+        function closeActionModal() {
+            document.getElementById("action-modal").classList.add("hidden");
+            modalActiveUser = null;
+            modalActiveConfig = null;
+        }
+
+        function executeEditFromModal() {
+            if (!modalActiveUser || !modalActiveConfig) return;
+            const username = modalActiveUser;
+            const config = modalActiveConfig;
+            closeActionModal();
+
+            loadUserToEdit(username, config);
+        }
+
+        function executeDeleteFromModal() {
+            if (!modalActiveUser) return;
+            const username = modalActiveUser;
+            closeActionModal();
+
+            activeEditUser = username;
+            deleteTag();
+        }
+
+        // Load credentials to the Editor Form
+        function loadUserToEdit(username, config) {
             activeEditUser = username;
             document.getElementById("username").value = username;
             document.getElementById("tagText").value = config.tag || "";
