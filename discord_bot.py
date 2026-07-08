@@ -371,18 +371,69 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             gap: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
+
+        /* Smooth and Clean Modal Buttons */
+        .modal-btn {
+            background: transparent;
+            border: 1px solid var(--border-gray);
+            color: var(--text-white);
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+            width: 100%;
+        }
+        
+        .modal-btn-edit {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .modal-btn-edit:hover {
+            background: var(--text-white);
+            color: var(--bg-black);
+            border-color: var(--text-white);
+        }
+        
+        .modal-btn-delete {
+            background: rgba(255, 59, 48, 0.05);
+            border-color: rgba(255, 59, 48, 0.3);
+            color: #ff453a;
+        }
+        
+        .modal-btn-delete:hover {
+            background: var(--error-red);
+            color: var(--text-white);
+            border-color: var(--error-red);
+        }
+        
+        .modal-btn-cancel {
+            background: transparent;
+            border-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+        }
+        
+        .modal-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-white);
+        }
     </style>
 </head>
 <body>
     <!-- Action Option Modal -->
     <div id="action-modal" class="auth-overlay hidden">
         <div class="auth-card" style="max-width: 320px; text-align: center;">
-            <h2 id="action-title" style="font-size: 1.1rem; border-bottom: none; padding-bottom: 0; margin-bottom: 5px;">Manage Tag</h2>
-            <p id="action-subtitle" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">For player</p>
-            <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
-                <button class="btn" style="background: #ffffff; color: #000000;" onclick="executeEditFromModal()">Edit Tag</button>
-                <button class="btn btn-delete" onclick="executeDeleteFromModal()">Delete Tag</button>
-                <button class="btn" style="background: #1f1f1f; color: #ffffff;" onclick="closeActionModal()">Cancel</button>
+            <h2 id="action-title" style="font-size: 1.15rem; border-bottom: none; padding-bottom: 0; margin-bottom: 8px;">Manage Tag</h2>
+            <p id="action-subtitle" style="color: var(--text-white); font-size: 0.95rem; margin-bottom: 4px; font-weight: 600;">For player</p>
+            <p id="action-created-by" style="color: var(--text-muted); font-size: 0.78rem; margin-bottom: 22px;">Created by: Unknown</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                <button class="modal-btn modal-btn-edit" onclick="executeEditFromModal()">Edit Tag</button>
+                <button class="modal-btn modal-btn-delete" onclick="executeDeleteFromModal()">Delete Tag</button>
+                <button class="modal-btn modal-btn-cancel" onclick="closeActionModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -686,11 +737,9 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 item.className = "player-item";
                 item.onclick = () => selectUserToEdit(username, config);
 
-                const createdBy = config.createdBy || "Unknown";
                 item.innerHTML = `
                     <div class="player-item-info">
                         <div class="player-item-name">${username}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 3px;">Created by ${createdBy}</div>
                     </div>
                     <div class="player-item-tag">${config.tag || "XNOCTIS"}</div>
                 `;
@@ -723,6 +772,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             modalActiveUser = username;
             modalActiveConfig = config;
             document.getElementById("action-subtitle").innerText = "For player @" + username;
+            const creator = config.createdBy || "Unknown";
+            document.getElementById("action-created-by").innerText = "Created by: " + creator;
             document.getElementById("action-modal").classList.remove("hidden");
         }
 
