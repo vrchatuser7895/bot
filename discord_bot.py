@@ -6,6 +6,9 @@ import re
 import requests
 import base64
 from dotenv import load_dotenv
+from http.server import SimpleHTTPRequestHandler
+from socketserver import TCPServer
+from threading import Thread
 
 # Load environment variables from .env file
 load_dotenv()
@@ -19,6 +22,29 @@ BRANCH = "main"
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# Keep-alive web server to bypass free hosting limits on Render
+class KeepAliveHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"Bot is alive!")
+
+def run_web():
+    port = int(os.getenv("PORT", 8080))
+    TCPServer.allow_reuse_address = True
+    try:
+        with TCPServer(("0.0.0.0", port), KeepAliveHandler) as httpd:
+            print(f"Web server running on port {port}")
+            httpd.serve_forever()
+    except Exception as e:
+        print(f"Web server failed to start: {e}")
+
+def keep_alive():
+    t = Thread(target=run_web)
+    t.daemon = True
+    t.start()
 
 def parse_hex_color(hex_str):
     if not hex_str or hex_str.lower() == "none":
@@ -97,7 +123,6 @@ async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: s
     Usage: !addtag <username> <tag_text> [banner_id] [pfp_id] [border_hex] [text_hex] [bg_hex]
     Use 'none' to skip optional parameters.
     """
-    # Load current local JSON
     data = {"players": {}}
     if os.path.exists(JSON_FILE_PATH):
         try:
@@ -119,12 +144,9 @@ async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: s
         "primaryColor": bg_color
     }
     
-    # Filter out None / empty values
     player_config = {k: v for k, v in player_config.items() if v is not None and v != ""}
-    
     data["players"][username.lower()] = player_config
     
-    # Save local copy
     try:
         with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
@@ -132,7 +154,6 @@ async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: s
         await ctx.send(f"⚠️ Failed to save local Tags.json: {e}")
         return
 
-    # Sync to GitHub
     await ctx.send("🔄 Syncing changes to GitHub...")
     success, msg = update_github(data, username)
     if success:
@@ -181,4 +202,5 @@ if __name__ == "__main__":
     if not TOKEN:
         print("Error: DISCORD_TOKEN is missing in the .env file.")
     else:
+        keep_alive()
         bot.run(TOKEN)
