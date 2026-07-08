@@ -24,7 +24,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Premium single-page control panel HTML
+# Pure Black and White Premium Responsive Control Panel
 HTML_PANEL_CONTENT = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,14 +34,14 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0b0f;
-            --card-bg: rgba(20, 20, 28, 0.7);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --accent-purple: #8e2de2;
-            --accent-teal: #4a00e0;
-            --accent-blue: #00f2fe;
-            --text-color: #f5f5f7;
-            --sub-text: #8e8e93;
+            --bg-black: #000000;
+            --card-black: #0c0c0c;
+            --input-black: #121212;
+            --border-gray: #1f1f1f;
+            --border-focus: #444444;
+            --text-white: #ffffff;
+            --text-muted: #888888;
+            --error-red: #ff3b30;
         }
 
         * {
@@ -52,18 +52,13 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         }
 
         body {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(142, 45, 226, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.1) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-color);
+            background-color: var(--bg-black);
+            color: var(--text-white);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 40px 20px;
-            transition: filter 0.5s ease;
         }
 
         header {
@@ -72,23 +67,21 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         }
 
         header h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             margin-bottom: 8px;
-            letter-spacing: 1px;
         }
 
         header p {
-            color: var(--sub-text);
-            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-size: 1rem;
         }
 
         .container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1.2fr 1fr;
             gap: 30px;
             width: 100%;
             max-width: 1200px;
@@ -101,21 +94,21 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         }
 
         .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
+            background: var(--card-black);
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
         .card h2 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 600;
-            border-bottom: 1px solid var(--border-color);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-gray);
             padding-bottom: 15px;
             margin-bottom: 10px;
         }
@@ -127,28 +120,26 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         }
 
         .form-group label {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: var(--sub-text);
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .form-control {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-color);
+            background: var(--input-black);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            color: var(--text-white);
             padding: 12px 16px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--accent-blue);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+            border-color: var(--border-focus);
         }
 
         .color-picker-row {
@@ -161,17 +152,17 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             display: flex;
             align-items: center;
             gap: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
+            background: var(--input-black);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
             padding: 8px 12px;
         }
 
         .color-picker-wrapper input[type="color"] {
             border: none;
             background: none;
-            width: 38px;
-            height: 38px;
+            width: 32px;
+            height: 32px;
             cursor: pointer;
             border-radius: 50%;
             overflow: hidden;
@@ -187,8 +178,9 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         }
 
         .color-picker-wrapper span {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 600;
+            color: var(--text-white);
         }
 
         .checkbox-group {
@@ -196,56 +188,53 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             align-items: center;
             gap: 10px;
             cursor: pointer;
+            font-size: 0.85rem;
             font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
         }
 
         .checkbox-group input {
             cursor: pointer;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--accent-blue);
+            width: 16px;
+            height: 16px;
+            accent-color: var(--text-white);
         }
 
         .btn {
-            background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-purple) 100%);
+            background: var(--text-white);
+            color: var(--bg-black);
             border: none;
-            border-radius: 10px;
-            color: var(--text-color);
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
             padding: 14px 20px;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(142, 45, 226, 0.3);
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(142, 45, 226, 0.5);
+            opacity: 0.9;
         }
 
         .btn-delete {
-            background: #ff3b30;
-            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3);
+            background: var(--error-red);
+            color: var(--text-white);
         }
 
-        .btn-delete:hover {
-            box-shadow: 0 6px 20px rgba(255, 59, 48, 0.5);
-        }
-
-        /* Preview Area */
+        /* Preview Box */
         .preview-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 1px dashed var(--border-color);
-            border-radius: 14px;
+            border: 1px dashed var(--border-gray);
+            border-radius: 8px;
             padding: 40px 20px;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.02);
             min-height: 180px;
             position: relative;
         }
@@ -254,8 +243,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             position: absolute;
             top: 10px;
             left: 15px;
-            font-size: 0.75rem;
-            color: var(--sub-text);
+            font-size: 0.7rem;
+            color: var(--text-muted);
             text-transform: uppercase;
             font-weight: bold;
         }
@@ -266,13 +255,13 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             align-items: center;
             gap: 12px;
             padding: 10px 24px;
-            border-radius: 14px;
+            border-radius: 12px;
             background-color: #141414;
             min-width: 250px;
             max-width: 380px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
             border: 2px solid transparent;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             position: relative;
         }
 
@@ -309,7 +298,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 350px;
+            max-height: 400px;
             overflow-y: auto;
             padding-right: 5px;
         }
@@ -318,17 +307,16 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
+            background: var(--input-black);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
             padding: 12px 18px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
         .player-item:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: var(--accent-blue);
+            border-color: var(--border-focus);
         }
 
         .player-item-info {
@@ -339,72 +327,21 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 
         .player-item-name {
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .player-item-tag {
-            font-size: 0.75rem;
-            background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-purple) 100%);
+            font-size: 0.7rem;
+            background: #ffffff;
+            color: #000000;
             padding: 3px 8px;
-            border-radius: 6px;
+            border-radius: 4px;
             font-weight: bold;
-        }
-
-        /* Password modal overlay */
-        .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 8, 0.95);
-            backdrop-filter: blur(12px);
-            z-index: 999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .auth-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 40px;
-            width: 90%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            text-transform: uppercase;
         }
 
         .hidden {
             display: none !important;
-        }
-
-        /* Hacker access denied overlay */
-        .hacker-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000000;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-        }
-
-        .hacker-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
         }
 
         /* Scrollbar styles */
@@ -412,45 +349,21 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             width: 6px;
         }
         .players-list::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 10px;
+            background: transparent;
         }
         .players-list::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--border-gray);
             border-radius: 10px;
-        }
-        .players-list::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
 <body>
-    <header id="main-header">
+    <header>
         <h1>Xnoctis Overhead Panel</h1>
         <p>Manage and customize your overhead nametags dynamically</p>
     </header>
 
-    <!-- Password Modal -->
-    <div id="auth-modal" class="auth-overlay hidden">
-        <div class="auth-card">
-            <h2>Enter Access Key</h2>
-            <p style="color: var(--sub-text); font-size: 0.9rem;">Authentication is required to make database modifications.</p>
-            <input type="password" id="auth-pw-input" class="form-control" placeholder="Enter Access Password...">
-            <button class="btn" onclick="submitAuth()">Authenticate</button>
-        </div>
-    </div>
-
-    <!-- Matrix Hacker Overlay -->
-    <div id="hacker-overlay" class="hacker-overlay hidden">
-        <canvas id="matrix-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.5;"></canvas>
-        <div class="hacker-content">
-            <h1 style="font-size: 2.8rem; font-weight: 700; color: #ffffff; letter-spacing: 2px; text-transform: uppercase;">Access Denied</h1>
-            <p style="color: #8e8e93; font-size: 1.1rem; font-weight: 400;">Your credentials could not be verified.</p>
-            <button class="btn" style="background: #ffffff; color: #000000; font-weight: bold; border-radius: 8px; box-shadow: none; letter-spacing: 0.5px; z-index: 2;" onclick="resetAndReload()">TRY AGAIN</button>
-        </div>
-    </div>
-
-    <div class="container" id="main-container">
+    <div class="container">
         <!-- Editor Card -->
         <div class="card">
             <h2>Nametag Editor</h2>
@@ -547,8 +460,14 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 </div>
             </div>
 
+            <!-- Password field placed directly in the form -->
+            <div class="form-group" style="margin-top: 10px; border-top: 1px solid var(--border-gray); padding-top: 20px;">
+                <label for="accessPassword">Security Access Password</label>
+                <input type="password" id="accessPassword" class="form-control" placeholder="Enter Access Password to Sync...">
+            </div>
+
             <div style="display: flex; gap: 15px; width: 100%;">
-                <button class="btn" style="flex: 2;" onclick="saveTag()">Save Nametag</button>
+                <button class="btn" style="flex: 2;" onclick="saveTag()">Save / Sync Tag</button>
                 <button id="delete-btn" class="btn btn-delete hidden" style="flex: 1;" onclick="deleteTag()">Delete</button>
             </div>
         </div>
@@ -557,7 +476,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         <div class="card">
             <h2>Current Configurations</h2>
             <div class="players-list" id="players-list">
-                <div style="color: var(--sub-text); text-align: center; padding-top: 50px;">Loading database...</div>
+                <div style="color: var(--text-muted); text-align: center; padding-top: 50px;">Loading database...</div>
             </div>
         </div>
     </div>
@@ -567,74 +486,13 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         let activeEditUser = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            // First load check: if no password stored, show the prompt modal directly
-            if (localStorage.getItem("panel_pw") === null) {
-                document.getElementById("auth-modal").classList.remove("hidden");
-            } else {
-                fetchTags();
+            // Load saved password from local storage if they entered it before
+            const cachedPw = localStorage.getItem("panel_pw");
+            if (cachedPw) {
+                document.getElementById("accessPassword").value = cachedPw;
             }
-        });
-
-        // Submit password authentication
-        function submitAuth() {
-            const pw = document.getElementById("auth-pw-input").value;
-            localStorage.setItem("panel_pw", pw);
-            document.getElementById("auth-modal").classList.add("hidden");
             fetchTags();
-        }
-
-        function triggerHackerScreen() {
-            // Turn panel grayscale
-            document.body.style.filter = "grayscale(100%)";
-            document.getElementById("main-header").style.filter = "grayscale(100%)";
-            document.getElementById("main-container").style.filter = "grayscale(100%)";
-
-            // Open Matrix digital rain fullscreen overlay
-            document.getElementById("hacker-overlay").classList.remove("hidden");
-            startMatrixRain();
-        }
-
-        function resetAndReload() {
-            // Remove the saved wrong password so they start fresh on reload
-            localStorage.removeItem("panel_pw");
-            location.reload();
-        }
-
-        function startMatrixRain() {
-            const canvas = document.getElementById("matrix-canvas");
-            const ctx = canvas.getContext("2d");
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@%&*";
-            const charArr = chars.split("");
-            const fontSize = 14;
-            const columns = canvas.width / fontSize;
-            const drops = [];
-
-            for (let i = 0; i < columns; i++) {
-                drops[i] = 1;
-            }
-
-            function draw() {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = "#ffffff"; // Black and White matrix rain
-                ctx.font = fontSize + "px monospace";
-
-                for (let i = 0; i < drops.length; i++) {
-                    const text = charArr[Math.floor(Math.random() * charArr.length)];
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
-            }
-            setInterval(draw, 33);
-        }
+        });
 
         function toggleBorderOption() {
             const useBorder = document.getElementById("useBorder").checked;
@@ -752,21 +610,10 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             }
         }
 
-        // Fetch all configurations from database
+        // Fetch all configurations from database (No initial block)
         function fetchTags() {
-            const pw = localStorage.getItem("panel_pw") || "";
-            fetch("/api/tags", {
-                headers: {
-                    "X-Password": pw
-                }
-            })
-            .then(res => {
-                if (res.status === 401) {
-                    triggerHackerScreen();
-                    return;
-                }
-                return res.json();
-            })
+            fetch("/api/tags")
+            .then(res => res.json())
             .then(payload => {
                 if (!payload || !payload.success) return;
                 currentDatabase = payload.data || { players: {} };
@@ -783,7 +630,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             const keys = Object.keys(players);
             
             if (keys.length === 0) {
-                listEl.innerHTML = `<div style="color: var(--sub-text); text-align: center; padding-top: 50px;">No configurations found in database.</div>`;
+                listEl.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding-top: 50px;">No configurations found in database.</div>`;
                 return;
             }
 
@@ -848,11 +695,20 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         function saveTag() {
             const username = document.getElementById("username").value.trim().toLowerCase();
             const tagText = document.getElementById("tagText").value.trim();
+            const pw = document.getElementById("accessPassword").value.trim();
 
             if (!username || !tagText) {
                 alert("Roblox Username and Tag Text are required.");
                 return;
             }
+
+            if (!pw) {
+                alert("Security Access Password is required to sync changes.");
+                return;
+            }
+
+            // Save password to local storage so they don't have to retype it in this browser
+            localStorage.setItem("panel_pw", pw);
 
             const payload = {
                 username: username,
@@ -886,8 +742,6 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 payload.config.textColor = hexToRgb(document.getElementById("textColorPicker").value);
             }
 
-            const pw = localStorage.getItem("panel_pw") || "";
-
             fetch("/api/save", {
                 method: "POST",
                 headers: {
@@ -898,14 +752,15 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             })
             .then(res => {
                 if (res.status === 401) {
-                    triggerHackerScreen();
-                    return;
+                    alert("Access Denied: Incorrect Security Password.");
+                    return null;
                 }
                 return res.json();
             })
             .then(data => {
+                if (data === null) return;
                 if (data && data.success) {
-                    alert("Configuration saved successfully!");
+                    alert("Configuration saved and synced successfully!");
                     fetchTags();
                     resetForm();
                 } else {
@@ -918,9 +773,14 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         // Delete tag from database
         function deleteTag() {
             if (!activeEditUser) return;
-            if (!confirm(`Are you sure you want to delete the tag for ${activeEditUser}?`)) return;
+            const pw = document.getElementById("accessPassword").value.trim();
 
-            const pw = localStorage.getItem("panel_pw") || "";
+            if (!pw) {
+                alert("Security Access Password is required to delete tags.");
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete the tag for ${activeEditUser}?`)) return;
 
             fetch("/api/delete", {
                 method: "POST",
@@ -932,12 +792,13 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             })
             .then(res => {
                 if (res.status === 401) {
-                    triggerHackerScreen();
-                    return;
+                    alert("Access Denied: Incorrect Security Password.");
+                    return null;
                 }
                 return res.json();
             })
             .then(data => {
+                if (data === null) return;
                 if (data && data.success) {
                     alert("Tag deleted successfully!");
                     fetchTags();
@@ -992,16 +853,6 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(HTML_PANEL_CONTENT.encode("utf-8"))
         elif self.path == "/api/tags":
-            provided_pw = self.headers.get("X-Password", "")
-            expected_pw = os.getenv("PANEL_PASSWORD") or os.getenv("PASSWORD", "")
-            if expected_pw and provided_pw != expected_pw:
-                self.send_response(401)
-                self.send_header("Content-type", "application/json")
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(json.dumps({"success": False, "message": "Unauthorized"}).encode("utf-8"))
-                return
-
             success, sha, data = fetch_from_github()
             self.send_response(200 if success else 500)
             self.send_header("Content-type", "application/json")
