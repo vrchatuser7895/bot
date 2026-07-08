@@ -475,6 +475,9 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         <!-- Database List Card -->
         <div class="card">
             <h2>Current Configurations</h2>
+            <div class="form-group" style="margin-bottom: 10px;">
+                <input type="text" id="searchBar" class="form-control" placeholder="Search usernames or tags..." oninput="filterPlayersList()">
+            </div>
             <div class="players-list" id="players-list">
                 <div style="color: var(--text-muted); text-align: center; padding-top: 50px;">Loading database...</div>
             </div>
@@ -598,15 +601,19 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             emUser.style.color = (tagText.toLowerCase() === "xnoctis") ? "#a0a0a0" : usernameColor;
 
             const useGrad = document.getElementById("useGradient").checked;
-            if (useGrad || tagText.toLowerCase() === "xnoctis") {
-                const start = (tagText.toLowerCase() === "xnoctis") ? "#add8e6" : document.getElementById("gradStartPicker").value;
-                const end = (tagText.toLowerCase() === "xnoctis") ? "#ffffff" : document.getElementById("gradEndPicker").value;
+            if (useGrad) {
+                const start = document.getElementById("gradStartPicker").value;
+                const end = document.getElementById("gradEndPicker").value;
                 emRank.style.background = `linear-gradient(90deg, ${start} 0%, ${end} 100%)`;
                 emRank.style.webkitBackgroundClip = "text";
                 emRank.style.webkitTextFillColor = "transparent";
             } else {
                 emRank.style.background = "none";
-                emRank.style.webkitTextFillColor = document.getElementById("textColorPicker").value;
+                if (tagText.toLowerCase() === "xnoctis") {
+                    emRank.style.webkitTextFillColor = "#a0a0a0";
+                } else {
+                    emRank.style.webkitTextFillColor = document.getElementById("textColorPicker").value;
+                }
             }
         }
 
@@ -647,6 +654,23 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                     <div class="player-item-tag">${config.tag || "XNOCTIS"}</div>
                 `;
                 listEl.appendChild(item);
+            });
+
+            // Re-apply search filter
+            filterPlayersList();
+        }
+
+        function filterPlayersList() {
+            const query = document.getElementById("searchBar").value.toLowerCase().trim();
+            const items = document.querySelectorAll(".player-item");
+            items.forEach(item => {
+                const name = item.querySelector(".player-item-name").innerText.toLowerCase();
+                const tag = item.querySelector(".player-item-tag").innerText.toLowerCase();
+                if (name.includes(query) || tag.includes(query)) {
+                    item.classList.remove("hidden");
+                } else {
+                    item.classList.add("hidden");
+                }
             });
         }
 
