@@ -1,24 +1,3 @@
 {
-  "players": {
-    "mangolassinom": {
-      "tag": "OWNER",
-      "bgImage": "rbxassetid://110094788133802",
-      "image": "rbxassetid://127768024083075",
-      "borderColor": [
-        255,
-        41,
-        0
-      ],
-      "textColor": [
-        255,
-        41,
-        0
-      ],
-      "primaryColor": [
-        20,
-        20,
-        20
-      ]
-    }
-  }
+  "players": {}
 }
