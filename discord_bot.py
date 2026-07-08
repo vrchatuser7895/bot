@@ -74,22 +74,47 @@ def format_asset_id(asset_id):
             return asset_id
     return f"rbxassetid://{asset_id}"
 
-def update_github(data, username):
+# Fetch latest Tags.json directly from GitHub API to avoid stale local filesystem caches
+def fetch_from_github():
     if not GITHUB_TOKEN or GITHUB_TOKEN == "your_github_token_here":
-        return False, "GitHub Token is not set in the .env file."
-    
+        return False, "GitHub Token is not set.", {"players": {}}
+        
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{JSON_FILE_PATH}"
     headers = {
         "Authorization": f"Bearer {GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
     
-    # Get current file info (especially sha)
     res = requests.get(url, headers=headers)
-    sha = None
     if res.status_code == 200:
-        sha = res.json().get("sha")
+        data_json = res.json()
+        sha = data_json.get("sha")
+        content_b64 = data_json.get("content")
+        try:
+            content_str = base64.b64decode(content_b64).decode('utf-8')
+            data = json.loads(content_str)
+            if "players" not in data:
+                data["players"] = {}
+            return True, sha, data
+        except Exception as e:
+            return False, f"Failed to parse Tags.json: {e}", {"players": {}}
+    elif res.status_code == 404:
+        # File doesn't exist yet, return empty structure
+        return True, None, {"players": {}}
+    else:
+        return False, f"GitHub API error: {res.text}", {"players": {}}
+
+# Commit and upload changes to GitHub repository
+def update_github(data, username, sha=None):
+    if not GITHUB_TOKEN or GITHUB_TOKEN == "your_github_token_here":
+        return False, "GitHub Token is not set."
         
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{JSON_FILE_PATH}"
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    
     content_str = json.dumps(data, indent=2)
     content_bytes = content_str.encode('utf-8')
     content_b64 = base64.b64encode(content_bytes).decode('utf-8')
@@ -123,15 +148,11 @@ async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: s
     Usage: !addtag <username> <tag_text> [banner_id] [pfp_id] [border_hex] [text_hex] [bg_hex]
     Use 'none' to skip optional parameters.
     """
-    data = {"players": {}}
-    if os.path.exists(JSON_FILE_PATH):
-        try:
-            with open(JSON_FILE_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                if "players" not in data:
-                    data["players"] = {}
-        except Exception:
-            pass
+    await ctx.send("🔄 Fetching latest database from GitHub...")
+    success, sha, data = fetch_from_github()
+    if not success:
+        await ctx.send(f"⚠️ Failed to fetch current tags from GitHub: `{sha}`")
+        return
 
     bg_color = parse_hex_color(bg) or [20, 20, 20]
     
@@ -147,19 +168,19 @@ async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: s
     player_config = {k: v for k, v in player_config.items() if v is not None and v != ""}
     data["players"][username.lower()] = player_config
     
+    # Save a local cache copy
     try:
         with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
-    except Exception as e:
-        await ctx.send(f"⚠️ Failed to save local Tags.json: {e}")
-        return
+    except Exception:
+        pass
 
     await ctx.send("🔄 Syncing changes to GitHub...")
-    success, msg = update_github(data, username)
+    success, msg = update_github(data, username, sha)
     if success:
         await ctx.send(f"✅ Successfully updated nametag for **{username}** on GitHub!")
     else:
-        await ctx.send(f"⚠️ Local Tags.json updated, but failed to sync to GitHub: `{msg}`")
+        await ctx.send(f"⚠️ Failed to sync changes to GitHub: `{msg}`")
 
 @bot.command()
 async def removetag(ctx, username: str):
@@ -167,15 +188,10 @@ async def removetag(ctx, username: str):
     Remove a player's nametag config.
     Usage: !removetag <username>
     """
-    if not os.path.exists(JSON_FILE_PATH):
-        await ctx.send("⚠️ Tags.json does not exist locally.")
-        return
-        
-    try:
-        with open(JSON_FILE_PATH, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception as e:
-        await ctx.send(f"⚠️ Failed to read Tags.json: {e}")
+    await ctx.send("🔄 Fetching latest database from GitHub...")
+    success, sha, data = fetch_from_github()
+    if not success:
+        await ctx.send(f"⚠️ Failed to fetch current tags from GitHub: `{sha}`")
         return
         
     if "players" not in data or username.lower() not in data["players"]:
@@ -184,19 +200,19 @@ async def removetag(ctx, username: str):
         
     del data["players"][username.lower()]
     
+    # Save a local cache copy
     try:
         with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
-    except Exception as e:
-        await ctx.send(f"⚠️ Failed to save local Tags.json: {e}")
-        return
+    except Exception:
+        pass
 
-    await ctx.send("🔄 Syncing changes to GitHub...")
-    success, msg = update_github(data, username)
+    await ctx.send("🔄 Syncing removal to GitHub...")
+    success, msg = update_github(data, username, sha)
     if success:
         await ctx.send(f"✅ Successfully removed nametag for **{username}** on GitHub!")
     else:
-        await ctx.send(f"⚠️ Local configuration removed, but failed to sync to GitHub: `{msg}`")
+        await ctx.send(f"⚠️ Failed to sync removal to GitHub: `{msg}`")
 
 if __name__ == "__main__":
     if not TOKEN:
