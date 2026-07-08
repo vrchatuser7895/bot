@@ -394,7 +394,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             
             <div class="form-group">
                 <label for="username">Target Roblox Username</label>
-                <input type="text" id="username" class="form-control" placeholder="e.g. vrchatuser7895" oninput="updatePreview()">
+                <input type="text" id="username" class="form-control" placeholder="e.g. edancer67" oninput="updatePreview()">
             </div>
 
             <div class="form-group">
@@ -562,7 +562,14 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 
         function extractAssetDigits(assetId) {
             if (!assetId) return "";
-            const digits = assetId.match(/\\d+/);
+            if (assetId.startsWith("http://") || assetId.startsWith("https://")) {
+                if (assetId.includes("id=")) {
+                    const match = assetId.match(/id=(\d+)/);
+                    if (match) return match[1];
+                }
+                return assetId;
+            }
+            const digits = assetId.match(/\d+/);
             return digits ? digits[0] : assetId;
         }
 
@@ -591,9 +598,25 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             const bannerId = extractAssetDigits(document.getElementById("bannerId").value.trim());
             const bgColor = document.getElementById("bgColorPicker").value;
             if (bannerId) {
-                emulator.style.backgroundImage = `url('https://www.roblox.com/asset-thumbnail/image?assetId=${bannerId}&width=420&height=150&format=png')`;
-                emulator.style.backgroundSize = "cover";
-                emulator.style.backgroundPosition = "center";
+                if (bannerId.startsWith("http")) {
+                    emulator.style.backgroundImage = `url('${bannerId}')`;
+                    emulator.style.backgroundSize = "cover";
+                    emulator.style.backgroundPosition = "center";
+                } else {
+                    fetch(`https://thumbnails.roblox.com/v1/assets?assetIds=${bannerId}&size=420x420&format=Png`)
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json && json.data && json.data[0] && json.data[0].imageUrl) {
+                            emulator.style.backgroundImage = `url('${json.data[0].imageUrl}')`;
+                            emulator.style.backgroundSize = "cover";
+                            emulator.style.backgroundPosition = "center";
+                        }
+                    }).catch(() => {
+                        emulator.style.backgroundImage = `url('https://www.roblox.com/asset-thumbnail/image?assetId=${bannerId}&width=420&height=150&format=png')`;
+                        emulator.style.backgroundSize = "cover";
+                        emulator.style.backgroundPosition = "center";
+                    });
+                }
             } else {
                 emulator.style.backgroundImage = "none";
                 emulator.style.backgroundColor = bgColor;
@@ -603,10 +626,22 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             const pfpId = extractAssetDigits(document.getElementById("pfpId").value.trim());
             if (pfpId) {
                 emPfp.classList.remove("hidden");
-                emPfp.style.backgroundImage = `url('https://www.roblox.com/asset-thumbnail/image?assetId=${pfpId}&width=150&height=150&format=png')`;
+                if (pfpId.startsWith("http")) {
+                    emPfp.style.backgroundImage = `url('${pfpId}')`;
+                } else {
+                    fetch(`https://thumbnails.roblox.com/v1/assets?assetIds=${pfpId}&size=150x150&format=Png`)
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json && json.data && json.data[0] && json.data[0].imageUrl) {
+                            emPfp.style.backgroundImage = `url('${json.data[0].imageUrl}')`;
+                        }
+                    }).catch(() => {
+                        emPfp.style.backgroundImage = `url('https://www.roblox.com/asset-thumbnail/image?assetId=${pfpId}&width=150&height=150&format=png')`;
+                    });
+                }
             } else if (tagText.toLowerCase() === "xnoctis") {
                 emPfp.classList.remove("hidden");
-                emPfp.style.backgroundImage = "url('https://www.roblox.com/asset-thumbnail/image?assetId=94120267834005&width=150&height=150&format=png')";
+                emPfp.style.backgroundImage = "url('https://tr.rbxcdn.com/128634152988614/150/150/Image/Png')";
             } else {
                 emPfp.classList.add("hidden");
             }
@@ -671,9 +706,11 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 item.className = "player-item";
                 item.onclick = () => selectUserToEdit(username, config);
 
+                const createdBy = config.createdBy || "Unknown";
                 item.innerHTML = `
                     <div class="player-item-info">
                         <div class="player-item-name">${username}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 3px;">Created by ${createdBy}</div>
                     </div>
                     <div class="player-item-tag">${config.tag || "XNOCTIS"}</div>
                 `;
@@ -912,6 +949,39 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 </html>
 """
 
+def validate_password_and_get_access_name(provided_pw):
+    provided_pw = provided_pw.strip()
+    if not provided_pw:
+        return None
+
+    # Map passwords to Access names
+    key_map = {}
+    
+    # 1. Map environment variables starting with ACCESS_
+    for key, val in os.environ.items():
+        if key.startswith("ACCESS_") and val:
+            name = key.replace("ACCESS_", "Access ")
+            key_map[val.strip()] = name
+
+    # 2. Map standard PASSWORD and PANEL_PASSWORD
+    main_pw = os.getenv("PASSWORD") or os.getenv("PANEL_PASSWORD")
+    if main_pw:
+        key_map[main_pw.strip()] = "Access 1"
+
+    # 3. Map comma-separated PASSWORDS list
+    passwords_csv = os.getenv("PASSWORDS")
+    if passwords_csv:
+        for idx, pw in enumerate(passwords_csv.split(",")):
+            pw_strip = pw.strip()
+            if pw_strip and pw_strip not in key_map:
+                key_map[pw_strip] = f"Access {idx+1}"
+
+    # If no passwords are configured on Render environment, allow access as "Unknown"
+    if not key_map:
+        return "Unknown"
+
+    return key_map.get(provided_pw)
+
 # Custom Handler for parsing API calls and serving Control Panel Dashboard
 class ControlPanelHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -953,10 +1023,10 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             post_data = self.rfile.read(content_length)
             payload = json.loads(post_data.decode('utf-8'))
             
-            # Verify password protection (checks PANEL_PASSWORD or PASSWORD variables)
+            # Verify password protection (checks multi-password map)
             provided_pw = self.headers.get("X-Password", "")
-            expected_pw = os.getenv("PANEL_PASSWORD") or os.getenv("PASSWORD", "")
-            if expected_pw and provided_pw != expected_pw:
+            access_name = validate_password_and_get_access_name(provided_pw)
+            if not access_name:
                 self.send_response(401)
                 self.send_header("Content-type", "application/json")
                 self.send_cors_headers()
@@ -966,6 +1036,7 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
                 
             username = payload.get("username", "").strip().lower()
             config = payload.get("config", {})
+            config["createdBy"] = access_name
             
             if not username:
                 self.send_response(400)
@@ -1006,8 +1077,8 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             payload = json.loads(post_data.decode('utf-8'))
             
             provided_pw = self.headers.get("X-Password", "")
-            expected_pw = os.getenv("PANEL_PASSWORD") or os.getenv("PASSWORD", "")
-            if expected_pw and provided_pw != expected_pw:
+            access_name = validate_password_and_get_access_name(provided_pw)
+            if not access_name:
                 self.send_response(401)
                 self.send_header("Content-type", "application/json")
                 self.send_cors_headers()
