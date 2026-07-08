@@ -76,6 +76,37 @@ def format_asset_id(asset_id):
             return asset_id
     return f"rbxassetid://{asset_id}"
 
+# Custom check to verify if the user is authorized to run nametags commands
+def has_required_role():
+    async def predicate(ctx):
+        # 1. Allow bot owner
+        if await ctx.bot.is_owner(ctx.author):
+            return True
+            
+        # 2. Allow server owner or administrators
+        if ctx.guild and (ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator):
+            return True
+            
+        if not ctx.guild or not hasattr(ctx.author, "roles"):
+            return False
+            
+        user_role_ids = [r.id for r in ctx.author.roles]
+        user_role_names = [r.name.lower() for r in ctx.author.roles]
+        
+        # Diagnostic print to Render logs
+        print(f"[Role Check] User {ctx.author.name} running command. Roles: {list(zip(user_role_ids, user_role_names))}")
+        
+        # 3. Check by role ID
+        if REQUIRED_ROLE_ID in user_role_ids:
+            return True
+            
+        # 4. Fallback check by role name (case insensitive)
+        if "for support" in user_role_names or "support" in user_role_names:
+            return True
+            
+        return False
+    return commands.check(predicate)
+
 # Fetch latest Tags.json directly from GitHub API to avoid stale local filesystem caches
 def fetch_from_github():
     if not GITHUB_TOKEN or GITHUB_TOKEN == "your_github_token_here":
@@ -146,7 +177,7 @@ async def on_ready():
 # Command error handling (e.g. missing role restriction)
 @bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRole):
+    if isinstance(error, commands.CheckFailure):
         await ctx.send("You do not have the required role to run this command.")
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send(f"Missing required arguments. Usage: `{ctx.prefix}{ctx.command.name} <username>`")
@@ -154,7 +185,7 @@ async def on_command_error(ctx, error):
         print(f"Error running command: {error}")
 
 @bot.command()
-@commands.has_role(REQUIRED_ROLE_ID)
+@has_required_role()
 async def addtag(ctx):
     """
     Starts an interactive step-by-step setup wizard to create a custom nametag.
@@ -299,7 +330,7 @@ async def addtag(ctx):
         await ctx.send(f"An error occurred in the setup wizard: {e}")
 
 @bot.command()
-@commands.has_role(REQUIRED_ROLE_ID)
+@has_required_role()
 async def removetag(ctx, username: str):
     """
     Remove a player's nametag config.
