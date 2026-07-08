@@ -21,7 +21,7 @@ def parse_hex_color(hex_str):
         return None
 
 def format_asset_id(asset_id):
-    if not asset_id:
+    if not asset_id or asset_id.lower() == "none":
         return ""
     asset_id = asset_id.strip()
     if not asset_id.isdigit():
@@ -58,7 +58,21 @@ def main():
     banner_id = input("Enter Banner/Background Asset ID (or press Enter for none): ").strip()
     pfp_id = input("Enter PFP/Icon Asset ID (or press Enter for none): ").strip()
     border_hex = input("Enter Border Color Hex (e.g. #FF0000 or press Enter for none): ").strip()
-    text_hex = input("Enter Text Color Hex (e.g. #FFFFFF or press Enter for none): ").strip()
+    
+    use_gradient = input("Use text color gradient? (y/n): ").strip().lower()
+    text_gradient = None
+    text_color = None
+    if use_gradient == 'y':
+        start_hex = input("Enter gradient start color Hex (e.g. #FF0000): ").strip()
+        end_hex = input("Enter gradient end color Hex (e.g. #0000FF): ").strip()
+        c1 = parse_hex_color(start_hex)
+        c2 = parse_hex_color(end_hex)
+        if c1 and c2:
+            text_gradient = [c1, c2]
+    else:
+        text_hex = input("Enter Text Color Hex (e.g. #FFFFFF or press Enter for none): ").strip()
+        text_color = parse_hex_color(text_hex)
+        
     bg_hex = input("Enter Primary Tag Background Color Hex (e.g. #141414 or press Enter for default dark): ").strip()
 
     player_config = {
@@ -66,7 +80,8 @@ def main():
         "bgImage": format_asset_id(banner_id),
         "image": format_asset_id(pfp_id),
         "borderColor": parse_hex_color(border_hex),
-        "textColor": parse_hex_color(text_hex),
+        "textColor": text_color,
+        "textGradient": text_gradient,
         "primaryColor": parse_hex_color(bg_hex) or [20, 20, 20]
     }
     

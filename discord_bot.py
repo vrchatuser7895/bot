@@ -18,6 +18,7 @@ GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO")
 JSON_FILE_PATH = "Tags.json"
 BRANCH = "main"
+REQUIRED_ROLE_ID = 1524460541475819665
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -61,6 +62,23 @@ def parse_hex_color(hex_str):
         return [r, g, b]
     except ValueError:
         return None
+
+def parse_text_color_or_gradient(text_val):
+    if not text_val or text_val.lower() == "none":
+        return None, None
+    
+    # Check if it contains a separator indicating a gradient (e.g. #FF0000-#0000FF)
+    for sep in ['-', ',', '_']:
+        if sep in text_val:
+            parts = text_val.split(sep)
+            if len(parts) >= 2:
+                c1 = parse_hex_color(parts[0])
+                c2 = parse_hex_color(parts[1])
+                if c1 and c2:
+                    return None, [c1, c2]
+                    
+    # Otherwise parse as single color
+    return parse_hex_color(text_val), None
 
 def format_asset_id(asset_id):
     if not asset_id or asset_id.lower() == "none":
@@ -141,11 +159,23 @@ def update_github(data, username, sha=None):
 async def on_ready():
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
 
+# Command error handling (e.g. missing role restriction)
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRole):
+        await ctx.send("❌ You do not have the required role to run this command.")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"⚠️ Missing required arguments. Usage: `{ctx.prefix}{ctx.command.signature}`")
+    else:
+        print(f"Error running command: {error}")
+
 @bot.command()
+@commands.has_role(REQUIRED_ROLE_ID)
 async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: str = "none", border: str = "none", text: str = "none", bg: str = "none"):
     """
     Add or update a player's nametag.
     Usage: !addtag <username> <tag_text> [banner_id] [pfp_id] [border_hex] [text_hex] [bg_hex]
+    To use a text gradient, specify two colors separated by a hyphen in text_hex, e.g. #FF0000-#0000FF
     Use 'none' to skip optional parameters.
     """
     await ctx.send("🔄 Fetching latest database from GitHub...")
@@ -155,13 +185,15 @@ async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: s
         return
 
     bg_color = parse_hex_color(bg) or [20, 20, 20]
+    text_color, text_gradient = parse_text_color_or_gradient(text)
     
     player_config = {
         "tag": tag_text,
         "bgImage": format_asset_id(banner),
         "image": format_asset_id(pfp),
         "borderColor": parse_hex_color(border),
-        "textColor": parse_hex_color(text),
+        "textColor": text_color,
+        "textGradient": text_gradient,
         "primaryColor": bg_color
     }
     
@@ -183,6 +215,7 @@ async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: s
         await ctx.send(f"⚠️ Failed to sync changes to GitHub: `{msg}`")
 
 @bot.command()
+@commands.has_role(REQUIRED_ROLE_ID)
 async def removetag(ctx, username: str):
     """
     Remove a player's nametag config.
