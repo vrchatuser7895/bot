@@ -409,6 +409,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             <h2>Enter Access Key</h2>
             <p style="color: var(--sub-text); font-size: 0.9rem;">Authentication is required to make database modifications.</p>
             <input type="password" id="auth-pw-input" class="form-control" placeholder="Enter Access Password...">
+            <div id="auth-error-msg" style="color: #ff3b30; font-size: 0.95rem; font-weight: 600; text-align: center; margin-top: -5px;" class="hidden">Access Denied</div>
             <button class="btn" onclick="submitAuth()">Authenticate</button>
         </div>
     </div>
@@ -667,9 +668,11 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             })
             .then(res => {
                 if (res.status === 401) {
+                    document.getElementById("auth-error-msg").classList.remove("hidden");
                     document.getElementById("auth-modal").classList.remove("hidden");
                     return;
                 }
+                document.getElementById("auth-error-msg").classList.add("hidden");
                 return res.json();
             })
             .then(payload => {
