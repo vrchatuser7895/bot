@@ -5,6 +5,7 @@ import os
 import re
 import requests
 import base64
+import asyncio
 from dotenv import load_dotenv
 from http.server import SimpleHTTPRequestHandler
 from socketserver import TCPServer
@@ -48,7 +49,7 @@ def keep_alive():
     t.start()
 
 def parse_hex_color(hex_str):
-    if not hex_str or hex_str.lower() == "none":
+    if not hex_str or hex_str.lower() in ["none", "skip"]:
         return None
     hex_str = hex_str.strip().lstrip('#')
     if len(hex_str) == 3:
@@ -63,25 +64,8 @@ def parse_hex_color(hex_str):
     except ValueError:
         return None
 
-def parse_text_color_or_gradient(text_val):
-    if not text_val or text_val.lower() == "none":
-        return None, None
-    
-    # Check if it contains a separator indicating a gradient (e.g. #FF0000-#0000FF)
-    for sep in ['-', ',', '_']:
-        if sep in text_val:
-            parts = text_val.split(sep)
-            if len(parts) >= 2:
-                c1 = parse_hex_color(parts[0])
-                c2 = parse_hex_color(parts[1])
-                if c1 and c2:
-                    return None, [c1, c2]
-                    
-    # Otherwise parse as single color
-    return parse_hex_color(text_val), None
-
 def format_asset_id(asset_id):
-    if not asset_id or asset_id.lower() == "none":
+    if not asset_id or asset_id.lower() in ["none", "skip"]:
         return ""
     asset_id = asset_id.strip()
     if not asset_id.isdigit():
@@ -171,48 +155,148 @@ async def on_command_error(ctx, error):
 
 @bot.command()
 @commands.has_role(REQUIRED_ROLE_ID)
-async def addtag(ctx, username: str, tag_text: str, banner: str = "none", pfp: str = "none", border: str = "none", text: str = "none", bg: str = "none"):
+async def addtag(ctx):
     """
-    Add or update a player's nametag.
-    Usage: !addtag <username> <tag_text> [banner_id] [pfp_id] [border_hex] [text_hex] [bg_hex]
-    To use a text gradient, specify two colors separated by a hyphen in text_hex, e.g. #FF0000-#0000FF
-    Use 'none' to skip optional parameters.
+    Starts an interactive step-by-step setup wizard to create a custom nametag.
     """
-    await ctx.send("🔄 Fetching latest database from GitHub...")
-    success, sha, data = fetch_from_github()
-    if not success:
-        await ctx.send(f"⚠️ Failed to fetch current tags from GitHub: `{sha}`")
-        return
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
 
-    bg_color = parse_hex_color(bg) or [20, 20, 20]
-    text_color, text_gradient = parse_text_color_or_gradient(text)
-    
-    player_config = {
-        "tag": tag_text,
-        "bgImage": format_asset_id(banner),
-        "image": format_asset_id(pfp),
-        "borderColor": parse_hex_color(border),
-        "textColor": text_color,
-        "textGradient": text_gradient,
-        "primaryColor": bg_color
-    }
-    
-    player_config = {k: v for k, v in player_config.items() if v is not None and v != ""}
-    data["players"][username.lower()] = player_config
-    
-    # Save a local cache copy
     try:
-        with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2)
-    except Exception:
-        pass
+        await ctx.send("🤖 **Roblox Nametags Setup Wizard started!**\nReply with `cancel` at any point to exit.")
+        
+        # 1. Target Username
+        await ctx.send("👤 **Step 1:** Enter the target Roblox username:")
+        msg = await bot.wait_for('message', timeout=60.0, check=check)
+        if msg.content.strip().lower() == 'cancel':
+            await ctx.send("❌ Cancelled wizard.")
+            return
+        username = msg.content.strip()
+        if not username:
+            await ctx.send("❌ Username cannot be empty. Cancelled.")
+            return
+            
+        # 2. Tag Text
+        await ctx.send("🏷️ **Step 2:** Enter the tag text (e.g. OWNER, STAFF, Xnoctis):")
+        msg = await bot.wait_for('message', timeout=60.0, check=check)
+        if msg.content.strip().lower() == 'cancel':
+            await ctx.send("❌ Cancelled wizard.")
+            return
+        tag_text = msg.content.strip()
+        if not tag_text:
+            await ctx.send("❌ Tag text cannot be empty. Cancelled.")
+            return
 
-    await ctx.send("🔄 Syncing changes to GitHub...")
-    success, msg = update_github(data, username, sha)
-    if success:
-        await ctx.send(f"✅ Successfully updated nametag for **{username}** on GitHub!")
-    else:
-        await ctx.send(f"⚠️ Failed to sync changes to GitHub: `{msg}`")
+        # 3. Banner
+        await ctx.send("🖼️ **Step 3:** Enter the Banner/Background Asset ID (or reply `skip` for none):")
+        msg = await bot.wait_for('message', timeout=60.0, check=check)
+        if msg.content.strip().lower() == 'cancel':
+            await ctx.send("❌ Cancelled wizard.")
+            return
+        banner = "" if msg.content.strip().lower() == 'skip' else msg.content.strip()
+
+        # 4. PFP
+        await ctx.send("🖼️ **Step 4:** Enter the PFP/Icon Asset ID (or reply `skip` for none):")
+        msg = await bot.wait_for('message', timeout=60.0, check=check)
+        if msg.content.strip().lower() == 'cancel':
+            await ctx.send("❌ Cancelled wizard.")
+            return
+        pfp = "" if msg.content.strip().lower() == 'skip' else msg.content.strip()
+
+        # 5. Border Hex
+        await ctx.send("🎨 **Step 5:** Enter the Border Color Hex (e.g. `#FF0000` or reply `skip` for none):")
+        msg = await bot.wait_for('message', timeout=60.0, check=check)
+        if msg.content.strip().lower() == 'cancel':
+            await ctx.send("❌ Cancelled wizard.")
+            return
+        border_hex = "" if msg.content.strip().lower() == 'skip' else msg.content.strip()
+
+        # 6. Text color / gradient choice
+        await ctx.send("🌈 **Step 6:** Do you want a text gradient? Reply `yes` or `no`:")
+        msg = await bot.wait_for('message', timeout=60.0, check=check)
+        if msg.content.strip().lower() == 'cancel':
+            await ctx.send("❌ Cancelled wizard.")
+            return
+        
+        text_color = None
+        text_gradient = None
+        if msg.content.strip().lower() == 'yes':
+            # Gradient colors
+            await ctx.send("🎨 **Step 6a:** Enter the gradient start color Hex (e.g. `#FF0000`):")
+            msg = await bot.wait_for('message', timeout=60.0, check=check)
+            if msg.content.strip().lower() == 'cancel':
+                await ctx.send("❌ Cancelled wizard.")
+                return
+            start_hex = msg.content.strip()
+            
+            await ctx.send("🎨 **Step 6b:** Enter the gradient end color Hex (e.g. `#0000FF`):")
+            msg = await bot.wait_for('message', timeout=60.0, check=check)
+            if msg.content.strip().lower() == 'cancel':
+                await ctx.send("❌ Cancelled wizard.")
+                return
+            end_hex = msg.content.strip()
+            
+            c1 = parse_hex_color(start_hex)
+            c2 = parse_hex_color(end_hex)
+            if c1 and c2:
+                text_gradient = [c1, c2]
+            else:
+                await ctx.send("⚠️ Invalid colors entered for gradient. Skipping text gradient.")
+        else:
+            await ctx.send("🎨 **Step 6a:** Enter a single solid Text Color Hex (or reply `skip` for none):")
+            msg = await bot.wait_for('message', timeout=60.0, check=check)
+            if msg.content.strip().lower() == 'cancel':
+                await ctx.send("❌ Cancelled wizard.")
+                return
+            if msg.content.strip().lower() != 'skip':
+                text_color = parse_hex_color(msg.content.strip())
+
+        # 7. Tag Background Color
+        await ctx.send("🎨 **Step 7:** Enter the Primary Background Color Hex (e.g. `#141414` or reply `skip` for default dark):")
+        msg = await bot.wait_for('message', timeout=60.0, check=check)
+        if msg.content.strip().lower() == 'cancel':
+            await ctx.send("❌ Cancelled wizard.")
+            return
+        bg_hex = msg.content.strip()
+        bg_color = parse_hex_color(bg_hex) or [20, 20, 20]
+
+        # Syncing...
+        await ctx.send("🔄 Setup complete! Syncing tag to GitHub...")
+        success, sha, data = fetch_from_github()
+        if not success:
+            await ctx.send(f"⚠️ Failed to fetch current database: `{sha}`")
+            return
+
+        player_config = {
+            "tag": tag_text,
+            "bgImage": format_asset_id(banner),
+            "image": format_asset_id(pfp),
+            "borderColor": parse_hex_color(border_hex),
+            "textColor": text_color,
+            "textGradient": text_gradient,
+            "primaryColor": bg_color
+        }
+        
+        player_config = {k: v for k, v in player_config.items() if v is not None and v != ""}
+        data["players"][username.lower()] = player_config
+        
+        # Save a local cache copy
+        try:
+            with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2)
+        except Exception:
+            pass
+
+        success, msg = update_github(data, username, sha)
+        if success:
+            await ctx.send(f"✅ Successfully created/updated nametag for **{username}** on GitHub!")
+        else:
+            await ctx.send(f"⚠️ Failed to sync changes to GitHub: `{msg}`")
+
+    except asyncio.TimeoutError:
+        await ctx.send("⏰ **Setup wizard timed out** due to inactivity (no reply for 60 seconds). Please try again.")
+    except Exception as e:
+        await ctx.send(f"⚠️ An error occurred in the setup wizard: {e}")
 
 @bot.command()
 @commands.has_role(REQUIRED_ROLE_ID)
