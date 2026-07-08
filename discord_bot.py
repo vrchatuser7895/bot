@@ -63,6 +63,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             flex-direction: column;
             align-items: center;
             padding: 40px 20px;
+            transition: filter 0.5s ease;
         }
 
         header {
@@ -380,6 +381,46 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             display: none !important;
         }
 
+        /* Hacker access denied overlay */
+        .hacker-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .hacker-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .hacker-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            color: #ffffff;
+            text-shadow: 0 0 10px #888888, 0 0 20px #ffffff;
+            animation: blink 1s infinite alternate;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
         /* Scrollbar styles */
         .players-list::-webkit-scrollbar {
             width: 6px;
@@ -398,7 +439,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <header>
+    <header id="main-header">
         <h1>Xnoctis Overhead Panel</h1>
         <p>Manage and customize your overhead nametags dynamically</p>
     </header>
@@ -409,12 +450,21 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             <h2>Enter Access Key</h2>
             <p style="color: var(--sub-text); font-size: 0.9rem;">Authentication is required to make database modifications.</p>
             <input type="password" id="auth-pw-input" class="form-control" placeholder="Enter Access Password...">
-            <div id="auth-error-msg" style="color: #ff3b30; font-size: 0.95rem; font-weight: 600; text-align: center; margin-top: -5px;" class="hidden">Access Denied</div>
             <button class="btn" onclick="submitAuth()">Authenticate</button>
         </div>
     </div>
 
-    <div class="container">
+    <!-- Matrix Hacker Overlay -->
+    <div id="hacker-overlay" class="hacker-overlay hidden">
+        <canvas id="matrix-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.5;"></canvas>
+        <div class="hacker-content">
+            <h1 class="hacker-title">ACCESS DENIED</h1>
+            <p style="color: #8e8e93; font-size: 1.2rem;">Your credentials could not be verified.</p>
+            <button class="btn" style="background: #ffffff; color: #000000; font-weight: bold; box-shadow: 0 0 15px rgba(255,255,255,0.4); border-radius: 8px;" onclick="location.reload()">Reload Page</button>
+        </div>
+    </div>
+
+    <div class="container" id="main-container">
         <!-- Editor Card -->
         <div class="card">
             <h2>Nametag Editor</h2>
@@ -540,6 +590,56 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             localStorage.setItem("panel_pw", pw);
             document.getElementById("auth-modal").classList.add("hidden");
             fetchTags();
+        }
+
+        function triggerHackerScreen() {
+            // Remove the saved wrong password so they start fresh on reload
+            localStorage.removeItem("panel_pw");
+
+            // Turn panel grayscale
+            document.body.style.filter = "grayscale(100%)";
+            document.getElementById("main-header").style.filter = "grayscale(100%)";
+            document.getElementById("main-container").style.filter = "grayscale(100%)";
+
+            // Open Matrix digital rain fullscreen overlay
+            document.getElementById("hacker-overlay").classList.remove("hidden");
+            startMatrixRain();
+        }
+
+        function startMatrixRain() {
+            const canvas = document.getElementById("matrix-canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@%&*";
+            const charArr = chars.split("");
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = [];
+
+            for (let i = 0; i < columns; i++) {
+                drops[i] = 1;
+            }
+
+            function draw() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#ffffff"; // Black and White matrix rain
+                ctx.font = fontSize + "px monospace";
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = charArr[Math.floor(Math.random() * charArr.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            setInterval(draw, 33);
         }
 
         function toggleBorderOption() {
@@ -668,11 +768,9 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             })
             .then(res => {
                 if (res.status === 401) {
-                    document.getElementById("auth-error-msg").classList.remove("hidden");
-                    document.getElementById("auth-modal").classList.remove("hidden");
+                    triggerHackerScreen();
                     return;
                 }
-                document.getElementById("auth-error-msg").classList.add("hidden");
                 return res.json();
             })
             .then(payload => {
@@ -806,8 +904,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             })
             .then(res => {
                 if (res.status === 401) {
-                    alert("Unauthorized password.");
-                    document.getElementById("auth-modal").classList.remove("hidden");
+                    triggerHackerScreen();
                     return;
                 }
                 return res.json();
@@ -841,8 +938,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             })
             .then(res => {
                 if (res.status === 401) {
-                    alert("Unauthorized password.");
-                    document.getElementById("auth-modal").classList.remove("hidden");
+                    triggerHackerScreen();
                     return;
                 }
                 return res.json();
