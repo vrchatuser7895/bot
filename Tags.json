@@ -1,29 +1,3 @@
 {
-  "players": {
-    "mangolassinom": {
-      "tag": "NIGGER",
-      "borderColor": [
-        255,
-        0,
-        0
-      ],
-      "textGradient": [
-        [
-          255,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          255
-        ]
-      ],
-      "primaryColor": [
-        20,
-        20,
-        20
-      ]
-    }
-  }
+  "players": {}
 }
