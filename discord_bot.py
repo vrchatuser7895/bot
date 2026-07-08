@@ -404,21 +404,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 24px;
-        }
-
-        .hacker-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            letter-spacing: 5px;
-            color: #ffffff;
-            text-shadow: 0 0 10px #888888, 0 0 20px #ffffff;
-            animation: blink 1s infinite alternate;
-        }
-
-        @keyframes blink {
-            0% { opacity: 0.2; }
-            100% { opacity: 1; }
+            gap: 20px;
         }
 
         /* Scrollbar styles */
@@ -458,9 +444,9 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
     <div id="hacker-overlay" class="hacker-overlay hidden">
         <canvas id="matrix-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.5;"></canvas>
         <div class="hacker-content">
-            <h1 class="hacker-title">ACCESS DENIED</h1>
-            <p style="color: #8e8e93; font-size: 1.2rem;">Your credentials could not be verified.</p>
-            <button class="btn" style="background: #ffffff; color: #000000; font-weight: bold; box-shadow: 0 0 15px rgba(255,255,255,0.4); border-radius: 8px;" onclick="location.reload()">Reload Page</button>
+            <h1 style="font-size: 2.8rem; font-weight: 700; color: #ffffff; letter-spacing: 2px; text-transform: uppercase;">Access Denied</h1>
+            <p style="color: #8e8e93; font-size: 1.1rem; font-weight: 400;">Your credentials could not be verified.</p>
+            <button class="btn" style="background: #ffffff; color: #000000; font-weight: bold; border-radius: 8px; box-shadow: none; letter-spacing: 0.5px; z-index: 2;" onclick="resetAndReload()">TRY AGAIN</button>
         </div>
     </div>
 
@@ -581,10 +567,15 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         let activeEditUser = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Initiate load which will verify password and trigger modal if invalid
-            fetchTags();
+            // First load check: if no password stored, show the prompt modal directly
+            if (localStorage.getItem("panel_pw") === null) {
+                document.getElementById("auth-modal").classList.remove("hidden");
+            } else {
+                fetchTags();
+            }
         });
 
+        // Submit password authentication
         function submitAuth() {
             const pw = document.getElementById("auth-pw-input").value;
             localStorage.setItem("panel_pw", pw);
@@ -593,9 +584,6 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         }
 
         function triggerHackerScreen() {
-            // Remove the saved wrong password so they start fresh on reload
-            localStorage.removeItem("panel_pw");
-
             // Turn panel grayscale
             document.body.style.filter = "grayscale(100%)";
             document.getElementById("main-header").style.filter = "grayscale(100%)";
@@ -604,6 +592,12 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             // Open Matrix digital rain fullscreen overlay
             document.getElementById("hacker-overlay").classList.remove("hidden");
             startMatrixRain();
+        }
+
+        function resetAndReload() {
+            // Remove the saved wrong password so they start fresh on reload
+            localStorage.removeItem("panel_pw");
+            location.reload();
         }
 
         function startMatrixRain() {
