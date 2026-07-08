@@ -530,11 +530,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         let activeEditUser = null;
 
         document.addEventListener("DOMContentLoaded", () => {
+            // Initiate load which will verify password and trigger modal if invalid
             fetchTags();
-            // Prompt for password if not stored at all (is null)
-            if (localStorage.getItem("panel_pw") === null) {
-                document.getElementById("auth-modal").classList.remove("hidden");
-            }
         });
 
         function submitAuth() {
@@ -662,20 +659,25 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 
         // Fetch all configurations from database
         function fetchTags() {
-            fetch("/api/tags")
-                .then(res => {
-                    if (res.status === 401) {
-                        document.getElementById("auth-modal").classList.remove("hidden");
-                        return;
-                    }
-                    return res.json();
-                })
-                .then(payload => {
-                    if (!payload || !payload.success) return;
-                    currentDatabase = payload.data || { players: {} };
-                    renderPlayersList();
-                })
-                .catch(err => console.error("Fetch failed", err));
+            const pw = localStorage.getItem("panel_pw") || "";
+            fetch("/api/tags", {
+                headers: {
+                    "X-Password": pw
+                }
+            })
+            .then(res => {
+                if (res.status === 401) {
+                    document.getElementById("auth-modal").classList.remove("hidden");
+                    return;
+                }
+                return res.json();
+            })
+            .then(payload => {
+                if (!payload || !payload.success) return;
+                currentDatabase = payload.data || { players: {} };
+                renderPlayersList();
+            })
+            .catch(err => console.error("Fetch failed", err));
         }
 
         // Render current player list cards
@@ -897,6 +899,16 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(HTML_PANEL_CONTENT.encode("utf-8"))
         elif self.path == "/api/tags":
+            provided_pw = self.headers.get("X-Password", "")
+            expected_pw = os.getenv("PANEL_PASSWORD") or os.getenv("PASSWORD", "")
+            if expected_pw and provided_pw != expected_pw:
+                self.send_response(401)
+                self.send_header("Content-type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "message": "Unauthorized"}).encode("utf-8"))
+                return
+
             success, sha, data = fetch_from_github()
             self.send_response(200 if success else 500)
             self.send_header("Content-type", "application/json")
