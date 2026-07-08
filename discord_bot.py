@@ -531,8 +531,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 
         document.addEventListener("DOMContentLoaded", () => {
             fetchTags();
-            // Automatically prompt for password if stored
-            if (!localStorage.getItem("panel_pw")) {
+            // Prompt for password if not stored at all (is null)
+            if (localStorage.getItem("panel_pw") === null) {
                 document.getElementById("auth-modal").classList.remove("hidden");
             }
         });
@@ -914,9 +914,9 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             post_data = self.rfile.read(content_length)
             payload = json.loads(post_data.decode('utf-8'))
             
-            # Verify password protection
+            # Verify password protection (checks PANEL_PASSWORD or PASSWORD variables)
             provided_pw = self.headers.get("X-Password", "")
-            expected_pw = os.getenv("PANEL_PASSWORD", "")
+            expected_pw = os.getenv("PANEL_PASSWORD") or os.getenv("PASSWORD", "")
             if expected_pw and provided_pw != expected_pw:
                 self.send_response(401)
                 self.send_header("Content-type", "application/json")
@@ -967,7 +967,7 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             payload = json.loads(post_data.decode('utf-8'))
             
             provided_pw = self.headers.get("X-Password", "")
-            expected_pw = os.getenv("PANEL_PASSWORD", "")
+            expected_pw = os.getenv("PANEL_PASSWORD") or os.getenv("PASSWORD", "")
             if expected_pw and provided_pw != expected_pw:
                 self.send_response(401)
                 self.send_header("Content-type", "application/json")
