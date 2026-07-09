@@ -1,10 +1,15 @@
 {
   "players": {
-    "igstarpc": "SUPPORT"
+    "igstarpc": "SUPPORT",
+    "aavoxbtw": "SUPPORT"
   },
   "claims": {
     "1304871527249874957": {
       "roblox_username": "Igstarpc",
+      "role": "SUPPORT"
+    },
+    "1010517937960009788": {
+      "roblox_username": "aavoxbtw",
       "role": "SUPPORT"
     }
   }
