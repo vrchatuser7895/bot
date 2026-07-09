@@ -25,7 +25,7 @@ BOOSTER_ROLE_ID = int(os.getenv("BOOSTER_ROLE_ID") or 1503774725330174125)
 SUPPORT_ROLE_ID = int(os.getenv("SUPPORT_ROLE_ID") or 1503591897598529670)
 STAFF_ROLE_ID = int(os.getenv("STAFF_ROLE_ID") or 1503591897598529671)
 HEAD_STAFF_ROLE_ID = int(os.getenv("HEAD_STAFF_ROLE_ID") or 1503781011648151733)
-CONTENT_CREATOR_ROLE_ID = int(os.getenv("CONTENT_CREATOR_ROLE_ID")) if os.getenv("CONTENT_CREATOR_ROLE_ID", "").strip().isdigit() else None
+CONTENT_CREATOR_ROLE_ID = int(os.getenv("CONTENT_CREATOR_ROLE_ID") or 1506209457070411827)
 
 intents = discord.Intents.default()
 intents.message_content = True
