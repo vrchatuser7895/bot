@@ -1377,10 +1377,15 @@ async def process_role_tag_claim(ctx, roblox_username, role_name, required_role_
         )
         return
         
-    # Check if the target Roblox username is already taken by someone else
+    # Check if the target Roblox username is already taken by another role, and if so release the old role claim
     if roblox_username_lower in data.get("players", {}):
-        await ctx.send(f"The Roblox username **@{roblox_username_clean}** has already been claimed by another user.")
-        return
+        old_role = data["players"][roblox_username_lower]
+        keys_to_remove = []
+        for ck, cv in data.get("claims", {}).items():
+            if cv.get("roblox_username", "").lower() == roblox_username_lower and cv.get("role") == old_role:
+                keys_to_remove.append(ck)
+        for ck in keys_to_remove:
+            del data["claims"][ck]
         
     # Register the claim
     if "players" not in data:
@@ -1432,10 +1437,15 @@ async def process_role_tag_switch(ctx, new_roblox_username, role_name, required_
         
     old_claimed_user_lower = active_claim.get("roblox_username", "").lower()
     
-    # Check if the target new Roblox username is already taken by someone else
+    # Check if the target new Roblox username is already taken by another role, and if so release the old role claim
     if new_roblox_username_lower in data.get("players", {}) and new_roblox_username_lower != old_claimed_user_lower:
-        await ctx.send(f"The Roblox username **@{new_roblox_username_clean}** has already been claimed by another user.")
-        return
+        old_role = data["players"][new_roblox_username_lower]
+        keys_to_remove = []
+        for ck, cv in data.get("claims", {}).items():
+            if cv.get("roblox_username", "").lower() == new_roblox_username_lower and cv.get("role") == old_role:
+                keys_to_remove.append(ck)
+        for ck in keys_to_remove:
+            del data["claims"][ck]
         
     # Release old username and claim new username
     if "players" not in data:
