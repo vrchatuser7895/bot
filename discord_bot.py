@@ -31,7 +31,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xnoctis Overhead Control Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Merriweather:ital,wght@0,700;1,700&family=Fredoka+One&family=Lobster&family=Special+Elite&family=Cinzel+Decorative:wght@700&family=Press+Start+2P&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-black: #000000;
@@ -421,6 +421,48 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-white);
         }
+
+        /* Font Grid CSS Rules */
+        .font-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .font-grid-btn {
+            background: #141414;
+            border: 1px solid var(--border-gray);
+            color: var(--text-white);
+            border-radius: 12px;
+            height: 52px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .font-grid-btn:hover {
+            border-color: #555555;
+            background: #181818;
+        }
+
+        .font-grid-btn.active {
+            border-color: var(--text-white);
+            background: #1e1e1e;
+            box-shadow: 0 0 0 1px var(--text-white);
+        }
+
+        .font-btn-gg-sans { font-family: 'Outfit', sans-serif; }
+        .font-btn-serif { font-family: 'Merriweather', serif; font-weight: 700; }
+        .font-btn-bubbly { font-family: 'Fredoka One', cursive; }
+        .font-btn-script { font-family: 'Lobster', cursive; }
+        .font-btn-typewriter { font-family: 'Special Elite', cursive; }
+        .font-btn-gothic { font-family: 'Cinzel Decorative', serif; font-weight: 700; }
+        .font-btn-pixel { font-family: 'Press Start 2P', monospace; font-size: 0.65rem !important; }
+        .font-btn-comic { font-family: 'Bangers', cursive; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -510,6 +552,37 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                         </div>
                     </div>
                 </div>
+            <!-- Font Configuration Grid -->
+            <div class="color-picker-row" style="margin-top: 15px; margin-bottom: 5px;">
+                <div class="form-group">
+                    <label style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">Choose Tag Font</label>
+                    <div class="font-grid" id="tag-font-grid">
+                        <button type="button" class="font-grid-btn active font-btn-gg-sans" data-font="GothamBold" onclick="setTagFont('GothamBold', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-serif" data-font="Garamond" onclick="setTagFont('Garamond', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-bubbly" data-font="FredokaOne" onclick="setTagFont('FredokaOne', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-script" data-font="Lobster" onclick="setTagFont('Lobster', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-typewriter" data-font="SpecialElite" onclick="setTagFont('SpecialElite', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-gothic" data-font="Medieval" onclick="setTagFont('Medieval', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-pixel" data-font="Arcade" onclick="setTagFont('Arcade', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-comic" data-font="Bangers" onclick="setTagFont('Bangers', this)">Gg</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-picker-row" style="margin-bottom: 15px;">
+                <div class="form-group">
+                    <label style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">Choose Display Font</label>
+                    <div class="font-grid" id="user-font-grid">
+                        <button type="button" class="font-grid-btn active font-btn-gg-sans" data-font="GothamBold" onclick="setUserFont('GothamBold', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-serif" data-font="Garamond" onclick="setUserFont('Garamond', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-bubbly" data-font="FredokaOne" onclick="setUserFont('FredokaOne', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-script" data-font="Lobster" onclick="setUserFont('Lobster', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-typewriter" data-font="SpecialElite" onclick="setUserFont('SpecialElite', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-gothic" data-font="Medieval" onclick="setUserFont('Medieval', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-pixel" data-font="Arcade" onclick="setUserFont('Arcade', this)">Gg</button>
+                        <button type="button" class="font-grid-btn font-btn-comic" data-font="Bangers" onclick="setUserFont('Bangers', this)">Gg</button>
+                    </div>
+                </div>
             </div>
 
             <div class="color-picker-row">
@@ -562,6 +635,24 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
     <script>
         let currentDatabase = { players: {} };
         let activeEditUser = null;
+        let selectedTagFont = "GothamBold";
+        let selectedUserFont = "GothamBold";
+
+        function setTagFont(fontName, element) {
+            selectedTagFont = fontName;
+            const buttons = document.querySelectorAll("#tag-font-grid .font-grid-btn");
+            buttons.forEach(btn => btn.classList.remove("active"));
+            element.classList.add("active");
+            updatePreview();
+        }
+
+        function setUserFont(fontName, element) {
+            selectedUserFont = fontName;
+            const buttons = document.querySelectorAll("#user-font-grid .font-grid-btn");
+            buttons.forEach(btn => btn.classList.remove("active"));
+            element.classList.add("active");
+            updatePreview();
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             // Load saved password from local storage if they entered it before
@@ -705,6 +796,37 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                     emRank.style.webkitTextFillColor = document.getElementById("textColorPicker").value;
                 }
             }
+
+            // Apply font configurations
+            const fontMap = {
+                "GothamBold": "'Outfit', sans-serif",
+                "Garamond": "'Merriweather', serif",
+                "FredokaOne": "'Fredoka One', cursive",
+                "Lobster": "'Lobster', cursive",
+                "SpecialElite": "'Special Elite', monospace",
+                "Medieval": "'Cinzel Decorative', serif",
+                "Arcade": "'Press Start 2P', monospace",
+                "Bangers": "'Bangers', cursive"
+            };
+            emRank.style.fontFamily = fontMap[selectedTagFont] || fontMap["GothamBold"];
+            emUser.style.fontFamily = fontMap[selectedUserFont] || fontMap["GothamBold"];
+            
+            // Adjust pixel font preview details
+            if (selectedTagFont === "Arcade") {
+                emRank.style.fontSize = "0.72rem";
+                emRank.style.letterSpacing = "-0.5px";
+            } else {
+                emRank.style.fontSize = "0.95rem";
+                emRank.style.letterSpacing = "0.5px";
+            }
+
+            if (selectedUserFont === "Arcade") {
+                emUser.style.fontSize = "0.52rem";
+                emUser.style.letterSpacing = "-0.5px";
+            } else {
+                emUser.style.fontSize = "0.75rem";
+                emUser.style.letterSpacing = "0px";
+            }
         }
 
         // Fetch all configurations from database (No initial block)
@@ -837,6 +959,28 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 document.getElementById("gradient-pickers").classList.add("hidden");
             }
 
+            // Font setup
+            selectedTagFont = config.tagFont || "GothamBold";
+            selectedUserFont = config.displayNameFont || "GothamBold";
+
+            // Update tag font grid buttons
+            document.querySelectorAll("#tag-font-grid .font-grid-btn").forEach(btn => {
+                if (btn.getAttribute("data-font") === selectedTagFont) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+
+            // Update user font grid buttons
+            document.querySelectorAll("#user-font-grid .font-grid-btn").forEach(btn => {
+                if (btn.getAttribute("data-font") === selectedUserFont) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+
             // Enable delete button
             document.getElementById("delete-btn").classList.remove("hidden");
             updatePreview();
@@ -866,7 +1010,9 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 config: {
                     tag: tagText,
                     primaryColor: hexToRgb(document.getElementById("bgColorPicker").value),
-                    displayNameColor: hexToRgb(document.getElementById("userColorPicker").value)
+                    displayNameColor: hexToRgb(document.getElementById("userColorPicker").value),
+                    tagFont: selectedTagFont,
+                    displayNameFont: selectedUserFont
                 }
             };
 
@@ -973,6 +1119,18 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             document.getElementById("solid-text-picker").classList.remove("hidden");
             document.getElementById("gradient-pickers").classList.add("hidden");
             document.getElementById("delete-btn").classList.add("hidden");
+
+            // Reset fonts setup
+            selectedTagFont = "GothamBold";
+            selectedUserFont = "GothamBold";
+            document.querySelectorAll(".font-grid-btn").forEach(btn => {
+                if (btn.getAttribute("data-font") === "GothamBold") {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+
             updatePreview();
         }
     </script>
