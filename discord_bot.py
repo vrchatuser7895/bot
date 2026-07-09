@@ -31,7 +31,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xnoctis Overhead Control Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Fredoka:wght@600;700&family=Press+Start+2P&family=Orbitron:wght@700&family=Patrick+Hand&family=Special+Elite&family=Creepster&family=Luckiest+Guy&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-black: #000000;
@@ -140,6 +140,22 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
         .form-control:focus {
             outline: none;
             border-color: var(--border-focus);
+        }
+
+        select.form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+        
+        select.form-control option {
+            background: var(--card-black);
+            color: var(--text-white);
         }
 
         .color-picker-row {
@@ -523,6 +539,32 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 </div>
             </div>
 
+            <!-- Size and Font Dropdowns -->
+            <div class="color-picker-row">
+                <div class="form-group">
+                    <label for="sizeSelect">Nametag Size</label>
+                    <select id="sizeSelect" class="form-control" onchange="updatePreview()">
+                        <option value="small">Small</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fontSelect">Font Preset</label>
+                    <select id="fontSelect" class="form-control" onchange="updatePreview()">
+                        <option value="GothamBold" selected>Default (Gotham Bold)</option>
+                        <option value="FredokaOne">Fredoka (Bubbly)</option>
+                        <option value="Arcade">Arcade (Pixel)</option>
+                        <option value="SciFi">SciFi (Futuristic)</option>
+                        <option value="PatrickHand">Patrick Hand (Handwritten)</option>
+                        <option value="SpecialElite">Special Elite (Typewriter)</option>
+                        <option value="Creepster">Creepster (Spooky)</option>
+                        <option value="LuckiestGuy">Luckiest Guy (Cartoon)</option>
+                        <option value="Highway">Highway (Clean Sans)</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="preview-container">
                 <div class="preview-label">Live Tag Emulator</div>
                 
@@ -644,6 +686,57 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             document.getElementById("textColorHex").innerText = document.getElementById("textColorPicker").value.toUpperCase();
             document.getElementById("gradStartHex").innerText = document.getElementById("gradStartPicker").value.toUpperCase();
             document.getElementById("gradEndHex").innerText = document.getElementById("gradEndPicker").value.toUpperCase();
+
+            // Font Preset
+            const fontMap = {
+                "GothamBold": "'Outfit', sans-serif",
+                "FredokaOne": "'Fredoka', sans-serif",
+                "Arcade": "'Press Start 2P', monospace",
+                "SciFi": "'Orbitron', sans-serif",
+                "PatrickHand": "'Patrick Hand', cursive",
+                "SpecialElite": "'Special Elite', serif",
+                "Creepster": "'Creepster', cursive",
+                "LuckiestGuy": "'Luckiest Guy', cursive",
+                "Highway": "'Roboto', sans-serif"
+            };
+            const selectedFont = document.getElementById("fontSelect").value;
+            emRank.style.fontFamily = fontMap[selectedFont] || fontMap["GothamBold"];
+            emUser.style.fontFamily = fontMap[selectedFont] || fontMap["GothamBold"];
+
+            // Size Preset
+            const size = document.getElementById("sizeSelect").value;
+            if (size === "small") {
+                emulator.style.padding = "6px 16px";
+                emulator.style.minWidth = "140px";
+                emulator.style.borderRadius = "10px";
+                emPfp.style.width = "24px";
+                emPfp.style.height = "24px";
+                emRank.style.fontSize = (selectedFont === "Arcade") ? "0.55rem" : "0.75rem";
+                emUser.style.fontSize = "0.58rem";
+            } else if (size === "large") {
+                emulator.style.padding = "14px 28px";
+                emulator.style.minWidth = "220px";
+                emulator.style.borderRadius = "16px";
+                emPfp.style.width = "38px";
+                emPfp.style.height = "38px";
+                emRank.style.fontSize = (selectedFont === "Arcade") ? "0.8rem" : "1.05rem";
+                emUser.style.fontSize = "0.78rem";
+            } else { // normal
+                emulator.style.padding = "10px 24px";
+                emulator.style.minWidth = "180px";
+                emulator.style.borderRadius = "12px";
+                emPfp.style.width = "30px";
+                emPfp.style.height = "30px";
+                emRank.style.fontSize = (selectedFont === "Arcade") ? "0.65rem" : "0.88rem";
+                emUser.style.fontSize = "0.65rem";
+            }
+
+            // Adjust custom font spacing if needed
+            if (selectedFont === "LuckiestGuy" || selectedFont === "Creepster") {
+                if (size === "small") emRank.style.fontSize = "0.85rem";
+                else if (size === "large") emRank.style.fontSize = "1.25rem";
+                else emRank.style.fontSize = "1.05rem";
+            }
 
             // Background & Banner
             const bannerId = extractAssetDigits(document.getElementById("bannerId").value.trim());
@@ -809,6 +902,10 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             document.getElementById("pfpId").value = extractAssetDigits(config.image || "");
             document.getElementById("bannerId").value = extractAssetDigits(config.bgImage || "");
 
+            // Preset selectors
+            document.getElementById("sizeSelect").value = config.size || "normal";
+            document.getElementById("fontSelect").value = config.font || "GothamBold";
+
             // Colors setup
             document.getElementById("bgColorPicker").value = rgbToHex(config.primaryColor || [20, 20, 20]);
             document.getElementById("userColorPicker").value = rgbToHex(config.displayNameColor || [160, 160, 160]);
@@ -866,7 +963,9 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 config: {
                     tag: tagText,
                     primaryColor: hexToRgb(document.getElementById("bgColorPicker").value),
-                    displayNameColor: hexToRgb(document.getElementById("userColorPicker").value)
+                    displayNameColor: hexToRgb(document.getElementById("userColorPicker").value),
+                    size: document.getElementById("sizeSelect").value,
+                    font: document.getElementById("fontSelect").value
                 }
             };
 
@@ -967,6 +1066,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             document.getElementById("tagText").value = "";
             document.getElementById("pfpId").value = "";
             document.getElementById("bannerId").value = "";
+            document.getElementById("sizeSelect").value = "normal";
+            document.getElementById("fontSelect").value = "GothamBold";
             document.getElementById("useBorder").checked = false;
             document.getElementById("border-picker-wrapper").classList.add("hidden");
             document.getElementById("useGradient").checked = false;
