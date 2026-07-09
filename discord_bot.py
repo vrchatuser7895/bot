@@ -1349,36 +1349,37 @@ def has_discord_role(member, role_id):
 async def process_role_tag_claim(ctx, roblox_username, role_name, required_role_id):
     member = ctx.author
     if not has_discord_role(member, required_role_id):
-        await ctx.send(f"❌ You do not have the required Discord role to claim the **{role_name}** tag.")
+        await ctx.send(f"You do not have the required Discord role to claim the **{role_name}** tag.")
         return
         
     roblox_username_clean = roblox_username.strip()
     roblox_username_lower = roblox_username_clean.lower()
     if not roblox_username_clean:
-        await ctx.send("❌ Please provide a valid Roblox username.")
+        await ctx.send("Please provide a valid Roblox username.")
         return
         
     discord_id = str(ctx.author.id)
+    claim_key = f"{discord_id}_{role_name.upper()}"
     
-    await ctx.send("⏳ Fetching database from GitHub...")
+    await ctx.send("Fetching database from GitHub...")
     success, sha, data = fetch_json_from_github("booster.json")
     if not success:
-        await ctx.send(f"❌ Failed to fetch database: `{sha}`")
+        await ctx.send(f"Failed to fetch database: `{sha}`")
         return
         
-    # Check if this Discord user already has an active claim
-    active_claim = data.get("claims", {}).get(discord_id)
+    # Check if this Discord user already has an active claim for this specific role
+    active_claim = data.get("claims", {}).get(claim_key)
     if active_claim:
         current_claimed_user = active_claim.get("roblox_username", "Unknown")
         await ctx.send(
-            f"❌ You have already claimed a tag for Roblox user **@{current_claimed_user}**.\n"
+            f"You have already claimed a tag for Roblox user **@{current_claimed_user}**.\n"
             f"If you want to change it, please use `{ctx.prefix}switch{role_name.lower().replace(' ', '')}tag <new_username>`."
         )
         return
         
     # Check if the target Roblox username is already taken by someone else
     if roblox_username_lower in data.get("players", {}):
-        await ctx.send(f"❌ The Roblox username **@{roblox_username_clean}** has already been claimed by another user.")
+        await ctx.send(f"The Roblox username **@{roblox_username_clean}** has already been claimed by another user.")
         return
         
     # Register the claim
@@ -1388,50 +1389,52 @@ async def process_role_tag_claim(ctx, roblox_username, role_name, required_role_
         data["claims"] = {}
         
     data["players"][roblox_username_lower] = role_name.upper()
-    data["claims"][discord_id] = {
+    data["claims"][claim_key] = {
         "roblox_username": roblox_username_clean,
-        "role": role_name.upper()
+        "role": role_name.upper(),
+        "discord_id": discord_id
     }
     
-    await ctx.send("⏳ Saving your claim to GitHub...")
+    await ctx.send("Saving your claim to GitHub...")
     ok, err = update_json_in_github("booster.json", data, f"Claim {role_name} tag: {roblox_username_clean} by Discord ID {discord_id}", sha)
     if ok:
-        await ctx.send(f"🎉 Successfully claimed the **{role_name}** tag for Roblox user **@{roblox_username_clean}**!")
+        await ctx.send(f"Successfully claimed the **{role_name}** tag for Roblox user **@{roblox_username_clean}**!")
     else:
-        await ctx.send(f"❌ Failed to sync claim to GitHub: `{err}`")
+        await ctx.send(f"Failed to sync claim to GitHub: `{err}`")
 
 # Switches processing helper
 async def process_role_tag_switch(ctx, new_roblox_username, role_name, required_role_id):
     member = ctx.author
     if not has_discord_role(member, required_role_id):
-        await ctx.send(f"❌ You do not have the required Discord role to switch the **{role_name}** tag.")
+        await ctx.send(f"You do not have the required Discord role to switch the **{role_name}** tag.")
         return
         
     new_roblox_username_clean = new_roblox_username.strip()
     new_roblox_username_lower = new_roblox_username_clean.lower()
     if not new_roblox_username_clean:
-        await ctx.send("❌ Please provide a valid Roblox username to switch to.")
+        await ctx.send("Please provide a valid Roblox username to switch to.")
         return
         
     discord_id = str(ctx.author.id)
+    claim_key = f"{discord_id}_{role_name.upper()}"
     
-    await ctx.send("⏳ Fetching database from GitHub...")
+    await ctx.send("Fetching database from GitHub...")
     success, sha, data = fetch_json_from_github("booster.json")
     if not success:
-        await ctx.send(f"❌ Failed to fetch database: `{sha}`")
+        await ctx.send(f"Failed to fetch database: `{sha}`")
         return
         
-    # Check if this Discord user has an active claim
-    active_claim = data.get("claims", {}).get(discord_id)
+    # Check if this Discord user has an active claim for this specific role
+    active_claim = data.get("claims", {}).get(claim_key)
     if not active_claim:
-        await ctx.send(f"❌ You do not have an active tag claim. Use `{ctx.prefix}claim{role_name.lower().replace(' ', '')}tag <roblox_username>` first.")
+        await ctx.send(f"You do not have an active tag claim. Use `{ctx.prefix}claim{role_name.lower().replace(' ', '')}tag <roblox_username>` first.")
         return
         
     old_claimed_user_lower = active_claim.get("roblox_username", "").lower()
     
     # Check if the target new Roblox username is already taken by someone else
     if new_roblox_username_lower in data.get("players", {}) and new_roblox_username_lower != old_claimed_user_lower:
-        await ctx.send(f"❌ The Roblox username **@{new_roblox_username_clean}** has already been claimed by another user.")
+        await ctx.send(f"The Roblox username **@{new_roblox_username_clean}** has already been claimed by another user.")
         return
         
     # Release old username and claim new username
@@ -1444,17 +1447,18 @@ async def process_role_tag_switch(ctx, new_roblox_username, role_name, required_
         del data["players"][old_claimed_user_lower]
         
     data["players"][new_roblox_username_lower] = role_name.upper()
-    data["claims"][discord_id] = {
+    data["claims"][claim_key] = {
         "roblox_username": new_roblox_username_clean,
-        "role": role_name.upper()
+        "role": role_name.upper(),
+        "discord_id": discord_id
     }
     
-    await ctx.send("⏳ Updating your claim on GitHub...")
+    await ctx.send("Updating your claim on GitHub...")
     ok, err = update_json_in_github("booster.json", data, f"Switch {role_name} tag to {new_roblox_username_clean} by Discord ID {discord_id}", sha)
     if ok:
-        await ctx.send(f"🔄 Successfully switched your **{role_name}** tag to Roblox user **@{new_roblox_username_clean}**!")
+        await ctx.send(f"Successfully switched your **{role_name}** tag to Roblox user **@{new_roblox_username_clean}**!")
     else:
-        await ctx.send(f"❌ Failed to sync change to GitHub: `{err}`")
+        await ctx.send(f"Failed to sync change to GitHub: `{err}`")
 
 # Auto-cleanup for removed roles or members leaving the server
 async def remove_member_claims_by_roles_or_leave(member, roles_removed_ids=None):
@@ -1467,13 +1471,6 @@ async def remove_member_claims_by_roles_or_leave(member, roles_removed_ids=None)
     claims = data.get("claims", {})
     players = data.get("players", {})
     
-    if discord_id not in claims:
-        return
-        
-    claim_info = claims[discord_id]
-    claimed_role = claim_info.get("role")
-    claimed_roblox = claim_info.get("roblox_username", "").lower()
-    
     role_to_id_map = {
         "BOOSTER": BOOSTER_ROLE_ID,
         "SUPPORT": SUPPORT_ROLE_ID,
@@ -1481,25 +1478,37 @@ async def remove_member_claims_by_roles_or_leave(member, roles_removed_ids=None)
         "HEAD STAFF": HEAD_STAFF_ROLE_ID
     }
     
-    target_role_id = role_to_id_map.get(claimed_role)
-    if not target_role_id:
-        return
-        
-    should_delete = False
-    if roles_removed_ids is None:
-        should_delete = True
-    else:
-        if target_role_id in roles_removed_ids:
+    keys_to_delete = []
+    
+    for claim_key, claim_info in list(claims.items()):
+        owner_id = claim_info.get("discord_id") or claim_key.split("_")[0]
+        if owner_id != discord_id:
+            continue
+            
+        claimed_role = claim_info.get("role")
+        target_role_id = role_to_id_map.get(claimed_role)
+        if not target_role_id:
+            continue
+            
+        should_delete = False
+        if roles_removed_ids is None:
             should_delete = True
+        else:
+            if target_role_id in roles_removed_ids:
+                should_delete = True
+                
+        if should_delete:
+            keys_to_delete.append((claim_key, claim_info.get("roblox_username", "").lower()))
             
-    if should_delete:
-        if claimed_roblox in players:
-            del players[claimed_roblox]
-        if discord_id in claims:
-            del claims[discord_id]
-            
-        print(f"Auto-removing claim for {claimed_roblox} (Discord User {member.name}) due to role removal or leaving server.")
-        update_json_in_github("booster.json", data, f"Auto-remove claim for {claimed_roblox} (Discord {discord_id}) due to role/leave event", sha)
+    if keys_to_delete:
+        for claim_key, roblox_lower in keys_to_delete:
+            if roblox_lower in players:
+                del players[roblox_lower]
+            if claim_key in claims:
+                del claims[claim_key]
+                
+        print(f"Auto-removing {len(keys_to_delete)} claims for Discord User {member.name} due to role removal or leaving server.")
+        update_json_in_github("booster.json", data, f"Auto-remove claims for Discord {discord_id} due to role/leave event", sha)
 
 # ================= Discord Bot Commands =================
 
