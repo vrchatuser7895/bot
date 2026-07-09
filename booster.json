@@ -2,7 +2,7 @@
   "players": {
     "aavoxbtw": "SUPPORT",
     "mangolassinom": "SUPPORT",
-    "igstarpc": "STAFF"
+    "igstarpc": "SUPPORT"
   },
   "claims": {
     "1304871527249874957": {
@@ -13,9 +13,9 @@
       "roblox_username": "aavoxbtw",
       "role": "SUPPORT"
     },
-    "1304871527249874957_STAFF": {
+    "1304871527249874957_SUPPORT": {
       "roblox_username": "Igstarpc",
-      "role": "STAFF",
+      "role": "SUPPORT",
       "discord_id": "1304871527249874957"
     }
   }
