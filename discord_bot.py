@@ -25,6 +25,7 @@ BOOSTER_ROLE_ID = int(os.getenv("BOOSTER_ROLE_ID") or 1503774725330174125)
 SUPPORT_ROLE_ID = int(os.getenv("SUPPORT_ROLE_ID") or 1503591897598529670)
 STAFF_ROLE_ID = int(os.getenv("STAFF_ROLE_ID") or 1503591897598529671)
 HEAD_STAFF_ROLE_ID = int(os.getenv("HEAD_STAFF_ROLE_ID") or 1503781011648151733)
+CONTENT_CREATOR_ROLE_ID = int(os.getenv("CONTENT_CREATOR_ROLE_ID")) if os.getenv("CONTENT_CREATOR_ROLE_ID", "").strip().isdigit() else None
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -1485,7 +1486,8 @@ async def remove_member_claims_by_roles_or_leave(member, roles_removed_ids=None)
         "BOOSTER": BOOSTER_ROLE_ID,
         "SUPPORT": SUPPORT_ROLE_ID,
         "STAFF": STAFF_ROLE_ID,
-        "HEAD STAFF": HEAD_STAFF_ROLE_ID
+        "HEAD STAFF": HEAD_STAFF_ROLE_ID,
+        "CONTENT CREATOR": CONTENT_CREATOR_ROLE_ID
     }
     
     keys_to_delete = []
@@ -1640,6 +1642,15 @@ async def claimheadstafftag(ctx, roblox_username: str):
 @bot.command(name="switchheadstafftag")
 async def switchheadstafftag(ctx, roblox_username: str):
     await process_role_tag_switch(ctx, roblox_username, "Head Staff", HEAD_STAFF_ROLE_ID)
+
+# Content Creator claim and switch commands
+@bot.command(name="claimcontentcreatortag")
+async def claimcontentcreatortag(ctx, roblox_username: str):
+    await process_role_tag_claim(ctx, roblox_username, "Content Creator", CONTENT_CREATOR_ROLE_ID)
+
+@bot.command(name="switchcontentcreatortag")
+async def switchcontentcreatortag(ctx, roblox_username: str):
+    await process_role_tag_switch(ctx, roblox_username, "Content Creator", CONTENT_CREATOR_ROLE_ID)
 
 if __name__ == "__main__":
     if not TOKEN:
