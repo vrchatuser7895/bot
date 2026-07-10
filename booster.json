@@ -4,7 +4,8 @@
     "mangolassinom": "SUPPORT",
     "igstarpc": "STAFF",
     "toshiroloper": "HEAD STAFF",
-    "blaze_xzxy": "BOOSTER"
+    "blaze_xzxy": "BOOSTER",
+    "unknown7789980": "STAFF"
   },
   "claims": {
     "1304871527249874957": {
@@ -29,6 +30,11 @@
       "roblox_username": "Blaze_xzxy",
       "role": "BOOSTER",
       "discord_id": "878661647579902013"
+    },
+    "1375882253045076108_STAFF": {
+      "roblox_username": "Unknown7789980",
+      "role": "STAFF",
+      "discord_id": "1375882253045076108"
     }
   }
 }
