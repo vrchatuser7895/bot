@@ -1621,27 +1621,27 @@ async def removetag(ctx, username: str):
         await ctx.send(f"Failed to sync removal to GitHub: `{msg}`")
 
 # Booster claim command
-@bot.command(name="claimboostertag")
+@bot.command(name="claimboostertag", aliases=["claimbooster"])
 async def claimboostertag(ctx, roblox_username: str):
     await process_role_tag_claim(ctx, roblox_username, "Booster", BOOSTER_ROLE_ID)
 
 # Support claim command
-@bot.command(name="claimsupporttag")
+@bot.command(name="claimsupporttag", aliases=["claimsupport"])
 async def claimsupporttag(ctx, roblox_username: str):
     await process_role_tag_claim(ctx, roblox_username, "Support", SUPPORT_ROLE_ID)
 
 # Staff claim command
-@bot.command(name="claimstafftag")
+@bot.command(name="claimstafftag", aliases=["claimstaff"])
 async def claimstafftag(ctx, roblox_username: str):
     await process_role_tag_claim(ctx, roblox_username, "Staff", STAFF_ROLE_ID)
 
 # Head Staff claim command
-@bot.command(name="claimheadstafftag")
+@bot.command(name="claimheadstafftag", aliases=["claimheadstaff"])
 async def claimheadstafftag(ctx, roblox_username: str):
     await process_role_tag_claim(ctx, roblox_username, "Head Staff", HEAD_STAFF_ROLE_ID)
 
 # Content Creator claim command
-@bot.command(name="claimcontentcreatortag")
+@bot.command(name="claimcontentcreatortag", aliases=["claimcontentcreator"])
 async def claimcontentcreatortag(ctx, roblox_username: str):
     await process_role_tag_claim(ctx, roblox_username, "Content Creator", CONTENT_CREATOR_ROLE_ID)
 
@@ -1721,6 +1721,92 @@ async def switch_command(ctx, new_roblox_username: str):
         await ctx.send(f"Successfully switched your **{role_name.title()}** tag to Roblox user **@{new_roblox_username_clean}**!")
     else:
         await ctx.send(f"Failed to sync change to GitHub: `{err}`")
+
+# Helper for listing claims of a specific role
+async def list_role_claims(ctx, role_name):
+    await ctx.send("Fetching database from GitHub...")
+    success, sha, data = fetch_json_from_github("booster.json")
+    if not success:
+        await ctx.send(f"Failed to fetch database: `{sha}`")
+        return
+        
+    claims = data.get("claims", {})
+    matching_claims = []
+    
+    for ck, cv in claims.items():
+        if cv.get("role") == role_name.upper().replace(" ", "_"):
+            roblox_user = cv.get("roblox_username", "Unknown")
+            discord_id = cv.get("discord_id") or ck.split("_")[0]
+            matching_claims.append(f"• **@{roblox_user}** (Claimed by <@{discord_id}>)")
+            
+    if not matching_claims:
+        await ctx.send(f"No active tag claims found for the **{role_name}** role.")
+        return
+        
+    await ctx.send(
+        f"📋 **Active {role_name} Tag Claims ({len(matching_claims)} total):**\n" +
+        "\n".join(matching_claims)
+    )
+
+# List Booster tags
+@bot.command(name="listboostertags", aliases=["listbooster", "listboosters"])
+async def listboostertags_cmd(ctx):
+    await list_role_claims(ctx, "Booster")
+
+# List Support tags
+@bot.command(name="listsupporttags", aliases=["listsupport", "listsupports"])
+async def listsupporttags_cmd(ctx):
+    await list_role_claims(ctx, "Support")
+
+# List Staff tags
+@bot.command(name="liststafftags", aliases=["liststaff", "liststaffs"])
+async def liststafftags_cmd(ctx):
+    await list_role_claims(ctx, "Staff")
+
+# List Head Staff tags
+@bot.command(name="listheadstafftags", aliases=["listheadstaff", "listheadstaffs"])
+async def listheadstafftags_cmd(ctx):
+    await list_role_claims(ctx, "Head Staff")
+
+# List Content Creator tags
+@bot.command(name="listcontentcreatortags", aliases=["listcontentcreator", "listcontentcreators"])
+async def listcontentcreatortags_cmd(ctx):
+    await list_role_claims(ctx, "Content Creator")
+
+# Universal List tags
+@bot.command(name="listtags", aliases=["alltags", "listalltags", "claims"])
+async def listtags_cmd(ctx):
+    """
+    Lists all active tag claims in the database grouped by roles.
+    """
+    await ctx.send("Fetching database from GitHub...")
+    success, sha, data = fetch_json_from_github("booster.json")
+    if not success:
+        await ctx.send(f"Failed to fetch database: `{sha}`")
+        return
+        
+    claims = data.get("claims", {})
+    if not claims:
+        await ctx.send("No active tag claims found in the database.")
+        return
+        
+    # Group claims by role
+    grouped = {}
+    for ck, cv in claims.items():
+        role = cv.get("role", "UNKNOWN").replace("_", " ").title()
+        roblox_user = cv.get("roblox_username", "Unknown")
+        discord_id = cv.get("discord_id") or ck.split("_")[0]
+        
+        if role not in grouped:
+            grouped[role] = []
+        grouped[role].append(f"  • **@{roblox_user}** (Claimed by <@{discord_id}>)")
+        
+    message_lines = ["📋 **All Active Tag Claims:**"]
+    for role, items in sorted(grouped.items()):
+        message_lines.append(f"\n🔹 **{role}** ({len(items)}):")
+        message_lines.extend(items)
+        
+    await ctx.send("\n".join(message_lines))
 
 if __name__ == "__main__":
     if not TOKEN:
