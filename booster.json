@@ -3,7 +3,8 @@
     "aavoxbtw": "SUPPORT",
     "mangolassinom": "SUPPORT",
     "igstarpc": "STAFF",
-    "toshiroloper": "HEAD STAFF"
+    "toshiroloper": "HEAD STAFF",
+    "galactus": "BOOSTER"
   },
   "claims": {
     "1304871527249874957": {
@@ -23,6 +24,11 @@
       "roblox_username": "toshiroloper",
       "role": "HEAD STAFF",
       "discord_id": "1271021258259169360"
+    },
+    "878661647579902013_BOOSTER": {
+      "roblox_username": "galactus",
+      "role": "BOOSTER",
+      "discord_id": "878661647579902013"
     }
   }
 }
