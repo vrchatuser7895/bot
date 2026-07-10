@@ -2,7 +2,8 @@
   "players": {
     "aavoxbtw": "SUPPORT",
     "mangolassinom": "SUPPORT",
-    "igstarpc": "STAFF"
+    "igstarpc": "STAFF",
+    "toshiroloper": "HEAD STAFF"
   },
   "claims": {
     "1304871527249874957": {
@@ -17,6 +18,11 @@
       "roblox_username": "Igstarpc",
       "role": "STAFF",
       "discord_id": "1304871527249874957"
+    },
+    "1271021258259169360_HEAD STAFF": {
+      "roblox_username": "toshiroloper",
+      "role": "HEAD STAFF",
+      "discord_id": "1271021258259169360"
     }
   }
 }
