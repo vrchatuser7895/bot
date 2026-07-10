@@ -745,9 +745,11 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 item.className = "player-item";
                 item.onclick = () => selectUserToEdit(username, config);
 
+                const creator = config.createdBy || "Unknown";
                 item.innerHTML = `
                     <div class="player-item-info">
                         <div class="player-item-name">${username}</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">by ${creator}</div>
                     </div>
                     <div class="player-item-tag">${config.tag || "XNOCTIS"}</div>
                 `;
@@ -1199,11 +1201,18 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "message": "Player not found"}).encode("utf-8"))
 
 def run_web():
+    import socket
     port = int(os.getenv("PORT", 8080))
-    TCPServer.allow_reuse_address = True
+    bind_ip = os.getenv("IP", "0.0.0.0")
+    
+    class MyTCPServer(TCPServer):
+        allow_reuse_address = True
+        if ":" in bind_ip:
+            address_family = socket.AF_INET6
+            
     try:
-        with TCPServer(("0.0.0.0", port), ControlPanelHandler) as httpd:
-            print(f"Control panel web server running on port {port}")
+        with MyTCPServer((bind_ip, port), ControlPanelHandler) as httpd:
+            print(f"Control panel web server running on {bind_ip}:{port}")
             httpd.serve_forever()
     except Exception as e:
         print(f"Web server failed to start: {e}")
