@@ -568,6 +568,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
     </div>
 
     <script>
+        const apiPrefix = window.location.pathname.startsWith('/nametags') ? '/nametags' : '';
         let currentDatabase = { players: {} };
         let activeEditUser = null;
 
@@ -660,7 +661,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 if (bannerId.startsWith("http")) {
                     emulator.style.backgroundImage = `url('${bannerId}')`;
                 } else {
-                    emulator.style.backgroundImage = `url('/api/thumbnail?id=${bannerId}&size=420x420')`;
+                    emulator.style.backgroundImage = `url('${apiPrefix}/api/thumbnail?id=${bannerId}&size=420x420')`;
                 }
                 emulator.style.backgroundSize = "cover";
                 emulator.style.backgroundPosition = "center";
@@ -676,7 +677,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 if (pfpId.startsWith("http")) {
                     emPfp.style.backgroundImage = `url('${pfpId}')`;
                 } else {
-                    emPfp.style.backgroundImage = `url('/api/thumbnail?id=${pfpId}&size=150x150')`;
+                    emPfp.style.backgroundImage = `url('${apiPrefix}/api/thumbnail?id=${pfpId}&size=150x150')`;
                 }
             } else if (tagText.toLowerCase() === "xnoctis") {
                 emPfp.classList.remove("hidden");
@@ -717,7 +718,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 
         // Fetch all configurations from database (No initial block)
         function fetchTags() {
-            fetch("/api/tags")
+            fetch(apiPrefix + "/api/tags")
             .then(res => res.json())
             .then(payload => {
                 if (!payload || !payload.success) return;
@@ -903,7 +904,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 payload.config.textColor = hexToRgb(document.getElementById("textColorPicker").value);
             }
 
-            fetch("/api/save", {
+            fetch(apiPrefix + "/api/save", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -943,7 +944,7 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 
             if (!confirm(`Are you sure you want to delete the tag for ${activeEditUser}?`)) return;
 
-            fetch("/api/delete", {
+            fetch(apiPrefix + "/api/delete", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
