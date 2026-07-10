@@ -26,6 +26,33 @@
         ]
       ],
       "createdBy": "Access cispn"
+    },
+    "arsenus5": {
+      "tag": "CO-OWNER",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        226,
+        36,
+        0
+      ],
+      "bgImage": "rbxassetid://139119432500873",
+      "textGradient": [
+        [
+          226,
+          36,
+          0
+        ],
+        [
+          0,
+          97,
+          254
+        ]
+      ],
+      "createdBy": "Access Co-Owner"
     }
   },
   "claims": {}
