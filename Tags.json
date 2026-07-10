@@ -35,12 +35,11 @@
         20
       ],
       "displayNameColor": [
-        120,
-        108,
-        213
+        255,
+        255,
+        255
       ],
       "bgImage": "rbxassetid://112857141267478",
-      "image": "rbxassetid://133940691052069",
       "textColor": [
         255,
         255,
