@@ -1360,22 +1360,22 @@ def has_discord_role(member, role_id):
 async def process_role_tag_claim(ctx, roblox_username, role_name, required_role_id):
     member = ctx.author
     if not has_discord_role(member, required_role_id):
-        await ctx.send(f"❌ You do not have the required Discord role to claim the **{role_name}** tag.")
+        await ctx.send(f"You do not have the required Discord role to claim the **{role_name}** tag.")
         return
         
     roblox_username_clean = roblox_username.strip()
     roblox_username_lower = roblox_username_clean.lower()
     if not roblox_username_clean:
-        await ctx.send("⚠️ Please provide a valid Roblox username.")
+        await ctx.send("Please provide a valid Roblox username.")
         return
         
     discord_id = str(ctx.author.id)
     claim_key = f"{discord_id}_{role_name.upper()}"
     
-    await ctx.send("🔍 Fetching database from GitHub...")
+    await ctx.send("Fetching database from GitHub...")
     success, sha, data = fetch_json_from_github("booster.json")
     if not success:
-        await ctx.send(f"❌ Failed to fetch database: `{sha}`")
+        await ctx.send(f"Failed to fetch database: `{sha}`")
         return
         
     # Check if this Discord user already has an active claim for this specific role (suffix or legacy format)
@@ -1385,7 +1385,7 @@ async def process_role_tag_claim(ctx, roblox_username, role_name, required_role_
     if active_claim:
         current_claimed_user = active_claim.get("roblox_username", "Unknown")
         await ctx.send(
-            f"ℹ️ You have already claimed a tag for Roblox user **@{current_claimed_user}**.\n"
+            f"You have already claimed a tag for Roblox user **@{current_claimed_user}**.\n"
             f"If you want to change it, please use `{ctx.prefix}switch{role_name.lower().replace(' ', '')}tag <new_username>`."
         )
         return
@@ -1398,7 +1398,7 @@ async def process_role_tag_claim(ctx, roblox_username, role_name, required_role_
             if cv.get("roblox_username", "").lower() == roblox_username_lower and cv.get("role") == old_role:
                 owner_id = cv.get("discord_id") or ck.split("_")[0]
                 break
-        await ctx.send(f"🚫 The Roblox username **@{roblox_username_clean}** has already been claimed by Discord ID `{owner_id}`.")
+        await ctx.send(f"The Roblox username **@{roblox_username_clean}** has already been claimed by Discord ID `{owner_id}`.")
         return
         
     # Register the claim
@@ -1414,12 +1414,12 @@ async def process_role_tag_claim(ctx, roblox_username, role_name, required_role_
         "discord_id": discord_id
     }
     
-    await ctx.send("💾 Saving your claim to GitHub...")
+    await ctx.send("Saving your claim to GitHub...")
     ok, err = update_json_in_github("booster.json", data, f"Claim {role_name} tag: {roblox_username_clean} by Discord ID {discord_id}", sha)
     if ok:
-        await ctx.send(f"✅ Successfully claimed the **{role_name}** tag for Roblox user **@{roblox_username_clean}**!")
+        await ctx.send(f"Successfully claimed the **{role_name}** tag for Roblox user **@{roblox_username_clean}**!")
     else:
-        await ctx.send(f"❌ Failed to sync claim to GitHub: `{err}`")
+        await ctx.send(f"Failed to sync claim to GitHub: `{err}`")
 
 # Switches processing helper
 async def process_role_tag_switch(ctx, new_roblox_username, role_name, required_role_id):
@@ -1660,10 +1660,10 @@ async def switch_command(ctx, new_roblox_username: str):
         
     discord_id = str(ctx.author.id)
     
-    await ctx.send("🔍 Fetching database from GitHub...")
+    await ctx.send("Fetching database from GitHub...")
     success, sha, data = fetch_json_from_github("booster.json")
     if not success:
-        await ctx.send(f"❌ Failed to fetch database: `{sha}`")
+        await ctx.send(f"Failed to fetch database: `{sha}`")
         return
         
     claims = data.get("claims", {})
@@ -1684,7 +1684,7 @@ async def switch_command(ctx, new_roblox_username: str):
         found_claim_data = claims[discord_id]
         
     if not found_claim_data:
-        await ctx.send(f"ℹ️ You do not have any active tag claims. Use `{ctx.prefix}claimboostertag <roblox_username>` first.")
+        await ctx.send(f"You do not have any active tag claims. Use `{ctx.prefix}claimboostertag <roblox_username>` first.")
         return
         
     role_name = found_claim_data.get("role", "BOOSTER")
@@ -1692,7 +1692,7 @@ async def switch_command(ctx, new_roblox_username: str):
     
     # Check if the target new Roblox username is already taken by another user
     if new_roblox_username_lower in data.get("players", {}) and new_roblox_username_lower != old_claimed_user_lower:
-        await ctx.send(f"🚫 The Roblox username **@{new_roblox_username_clean}** is already taken by another claim.")
+        await ctx.send(f"The Roblox username **@{new_roblox_username_clean}** is already taken by another claim.")
         return
         
     # Release old username and claim new username
@@ -1716,12 +1716,12 @@ async def switch_command(ctx, new_roblox_username: str):
         "discord_id": discord_id
     }
     
-    await ctx.send("💾 Updating your claim on GitHub...")
+    await ctx.send("Updating your claim on GitHub...")
     ok, err = update_json_in_github("booster.json", data, f"Switch {role_name} tag to {new_roblox_username_clean} by Discord ID {discord_id}", sha)
     if ok:
-        await ctx.send(f"✅ Successfully switched your **{role_name.title()}** tag to Roblox user **@{new_roblox_username_clean}**!")
+        await ctx.send(f"Successfully switched your **{role_name.title()}** tag to Roblox user **@{new_roblox_username_clean}**!")
     else:
-        await ctx.send(f"❌ Failed to sync change to GitHub: `{err}`")
+        await ctx.send(f"Failed to sync change to GitHub: `{err}`")
 
 # Helper for listing claims of a specific role
 async def list_role_claims(ctx, role_name):
@@ -1745,7 +1745,7 @@ async def list_role_claims(ctx, role_name):
         return
         
     await ctx.send(
-        f"📋 **Active {role_name} Tag Claims ({len(matching_claims)} total):**\n" +
+        f"**Active {role_name} Tag Claims ({len(matching_claims)} total):**\n" +
         "\n".join(matching_claims)
     )
 
@@ -1802,9 +1802,9 @@ async def listtags_cmd(ctx):
             grouped[role] = []
         grouped[role].append(f"  • **@{roblox_user}** (Claimed by <@{discord_id}>)")
         
-    message_lines = ["📋 **All Active Tag Claims:**"]
+    message_lines = ["**All Active Tag Claims:**"]
     for role, items in sorted(grouped.items()):
-        message_lines.append(f"\n🔹 **{role}** ({len(items)}):")
+        message_lines.append(f"\n**{role}** ({len(items)}):")
         message_lines.extend(items)
         
     await ctx.send("\n".join(message_lines))
