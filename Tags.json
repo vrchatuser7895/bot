@@ -1,32 +1,32 @@
 {
   "players": {
-    "mangolassinom": {
-      "tag": "TESTING",
+    "igstarpc": {
+      "tag": "\u200e",
       "primaryColor": [
-        20,
-        20,
-        20
+        0,
+        0,
+        0
       ],
       "displayNameColor": [
-        160,
-        160,
-        160
+        0,
+        0,
+        0
       ],
-      "bgImage": "rbxassetid://93720649219761",
-      "image": "rbxassetid://93720649219761",
+      "bgImage": "rbxassetid://102646709539405",
       "textGradient": [
-        [
-          0,
-          0,
-          0
-        ],
         [
           255,
           255,
           255
+        ],
+        [
+          84,
+          76,
+          93
         ]
       ],
       "createdBy": "Access 1"
     }
-  }
+  },
+  "claims": {}
 }
