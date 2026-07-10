@@ -26,6 +26,26 @@
         ]
       ],
       "createdBy": "Access Co-Owner"
+    },
+    "igstarpc": {
+      "tag": "\u200b",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        160,
+        160,
+        160
+      ],
+      "bgImage": "rbxassetid://102646709539405",
+      "textColor": [
+        255,
+        255,
+        255
+      ],
+      "createdBy": "Access cispn"
     }
   },
   "claims": {}
