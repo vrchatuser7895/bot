@@ -1,28 +1,28 @@
 {
   "players": {
     "igstarpc": {
-      "tag": "\u200e",
+      "tag": "CO-OWNER",
       "primaryColor": [
-        0,
-        0,
-        0
+        20,
+        20,
+        20
       ],
       "displayNameColor": [
-        0,
-        0,
+        226,
+        36,
         0
       ],
-      "bgImage": "rbxassetid://102646709539405",
+      "bgImage": "rbxassetid://139119432500873",
       "textGradient": [
         [
-          255,
-          255,
-          255
+          226,
+          36,
+          0
         ],
         [
-          84,
-          76,
-          93
+          0,
+          97,
+          254
         ]
       ],
       "createdBy": "Access cispn"
