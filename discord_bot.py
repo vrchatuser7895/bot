@@ -745,9 +745,11 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 item.className = "player-item";
                 item.onclick = () => selectUserToEdit(username, config);
 
+                const creator = config.createdBy || "Unknown";
                 item.innerHTML = `
                     <div class="player-item-info">
                         <div class="player-item-name">${username}</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">by ${creator}</div>
                     </div>
                     <div class="player-item-tag">${config.tag || "XNOCTIS"}</div>
                 `;
