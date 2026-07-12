@@ -46,6 +46,26 @@
         255
       ],
       "createdBy": "Access cispn"
+    },
+    "reality16fr": {
+      "tag": "\u200b",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        255,
+        255,
+        255
+      ],
+      "bgImage": "rbxassetid://102646709539405",
+      "textColor": [
+        255,
+        255,
+        255
+      ],
+      "createdBy": "Access cispn"
     }
   },
   "claims": {}
