@@ -66,6 +66,26 @@
         255
       ],
       "createdBy": "Access cispn"
+    },
+    "itskazuyama": {
+      "tag": "\u200b",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        255,
+        255,
+        255
+      ],
+      "bgImage": "rbxassetid://102646709539405",
+      "textColor": [
+        255,
+        255,
+        255
+      ],
+      "createdBy": "Access cispn"
     }
   },
   "claims": {}
