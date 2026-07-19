@@ -39,6 +39,8 @@
         255,
         255
       ],
+      "hideTag": true,
+      "hideDisplayName": true,
       "bgImage": "rbxassetid://102646709539405",
       "textColor": [
         255,
