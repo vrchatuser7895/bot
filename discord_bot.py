@@ -1074,20 +1074,21 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        if self.path == "/":
+        path_only = self.path.split("?")[0]
+        if path_only == "/":
             self.send_response(200)
             self.send_header("Content-type", "text/html; charset=utf-8")
             self.send_cors_headers()
             self.end_headers()
             self.wfile.write(HTML_PANEL_CONTENT.encode("utf-8"))
-        elif self.path == "/api/tags":
+        elif path_only == "/api/tags":
             success, sha, data = fetch_from_github()
             self.send_response(200 if success else 500)
             self.send_header("Content-type", "application/json")
             self.send_cors_headers()
             self.end_headers()
             self.wfile.write(json.dumps({"success": success, "data": data, "error": sha if not success else None}).encode("utf-8"))
-        elif self.path == "/raw/tags":
+        elif path_only == "/raw/tags":
             if os.path.exists(JSON_FILE_PATH):
                 try:
                     with open(JSON_FILE_PATH, "r", encoding="utf-8") as f:
@@ -1106,7 +1107,7 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             self.send_cors_headers()
             self.end_headers()
             self.wfile.write(content)
-        elif self.path == "/raw/booster":
+        elif path_only == "/raw/booster":
             if os.path.exists("booster.json"):
                 try:
                     with open("booster.json", "r", encoding="utf-8") as f:
@@ -1125,7 +1126,7 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             self.send_cors_headers()
             self.end_headers()
             self.wfile.write(content)
-        elif self.path.startswith("/api/thumbnail"):
+        elif path_only.startswith("/api/thumbnail"):
             from urllib.parse import urlparse, parse_qs
             parsed = urlparse(self.path)
             params = parse_qs(parsed.query)
@@ -1166,7 +1167,8 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"Not found")
 
     def do_POST(self):
-        if self.path == "/api/save":
+        path_only = self.path.split("?")[0]
+        if path_only == "/api/save":
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             payload = json.loads(post_data.decode('utf-8'))
@@ -1219,7 +1221,7 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"success": ok, "message": "Success" if ok else err}).encode("utf-8"))
             
-        elif self.path == "/api/delete":
+        elif path_only == "/api/delete":
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             payload = json.loads(post_data.decode('utf-8'))
