@@ -1,29 +1,89 @@
 {
   "players": {
-    "igstarpc": {
-      "tag": "\u200e",
+    "arsenus5": {
+      "tag": "CO-OWNER",
       "primaryColor": [
-        0,
-        0,
-        0
+        20,
+        20,
+        20
       ],
       "displayNameColor": [
-        0,
-        0,
+        226,
+        36,
         0
       ],
-      "bgImage": "rbxassetid://102646709539405",
+      "bgImage": "rbxassetid://139119432500873",
       "textGradient": [
         [
-          255,
-          255,
-          255
+          226,
+          36,
+          0
         ],
         [
-          84,
-          76,
-          93
+          0,
+          97,
+          254
         ]
+      ],
+      "createdBy": "Access Co-Owner"
+    },
+    "igstarpc": {
+      "tag": "\u200b",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        255,
+        255,
+        255
+      ],
+      "bgImage": "rbxassetid://102646709539405",
+      "textColor": [
+        255,
+        255,
+        255
+      ],
+      "createdBy": "Access cispn"
+    },
+    "reality16fr": {
+      "tag": "\u200b",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        255,
+        255,
+        255
+      ],
+      "bgImage": "rbxassetid://102646709539405",
+      "textColor": [
+        255,
+        255,
+        255
+      ],
+      "createdBy": "Access cispn"
+    },
+    "itskazuyama": {
+      "tag": "\u200b",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        255,
+        255,
+        255
+      ],
+      "bgImage": "rbxassetid://102646709539405",
+      "textColor": [
+        255,
+        255,
+        255
       ],
       "createdBy": "Access cispn"
     }

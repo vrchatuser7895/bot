@@ -1,22 +1,35 @@
 {
   "players": {
     "aavoxbtw": "SUPPORT",
-    "mangolassinom": "SUPPORT",
-    "igstarpc": "STAFF"
+    "toshiroloper": "HEAD STAFF",
+    "blaze_xzxy": "BOOSTER",
+    "unknown7789980": "STAFF",
+    "unknown_55566677": "SUPPORT"
   },
   "claims": {
-    "1304871527249874957": {
-      "roblox_username": "MangoLassiNOM",
-      "role": "SUPPORT"
-    },
     "1010517937960009788": {
       "roblox_username": "aavoxbtw",
       "role": "SUPPORT"
     },
-    "1304871527249874957_STAFF": {
-      "roblox_username": "Igstarpc",
+    "1271021258259169360_HEAD STAFF": {
+      "roblox_username": "toshiroloper",
+      "role": "HEAD STAFF",
+      "discord_id": "1271021258259169360"
+    },
+    "878661647579902013_BOOSTER": {
+      "roblox_username": "Blaze_xzxy",
+      "role": "BOOSTER",
+      "discord_id": "878661647579902013"
+    },
+    "1375882253045076108_STAFF": {
+      "roblox_username": "Unknown7789980",
       "role": "STAFF",
-      "discord_id": "1304871527249874957"
+      "discord_id": "1375882253045076108"
+    },
+    "1375882253045076108_SUPPORT": {
+      "roblox_username": "unknown_55566677",
+      "role": "SUPPORT",
+      "discord_id": "1375882253045076108"
     }
   }
 }
