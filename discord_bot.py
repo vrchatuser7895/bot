@@ -463,6 +463,21 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 
             <div class="color-picker-row">
                 <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="hideTag" onchange="updatePreview()">
+                        Hide Tag Text
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="hideDisplayName" onchange="updatePreview()">
+                        Hide Display Name
+                    </label>
+                </div>
+            </div>
+
+            <div class="color-picker-row">
+                <div class="form-group">
                     <label>Tag Background</label>
                     <div class="color-picker-wrapper">
                         <input type="color" id="bgColorPicker" value="#141414" oninput="updatePreview()">
@@ -714,6 +729,12 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                     emRank.style.webkitTextFillColor = document.getElementById("textColorPicker").value;
                 }
             }
+
+            // Visibility updates
+            const hideTag = document.getElementById("hideTag").checked;
+            const hideDisplayName = document.getElementById("hideDisplayName").checked;
+            emRank.style.display = hideTag ? "none" : "block";
+            emUser.style.display = hideDisplayName ? "none" : "block";
         }
 
         // Fetch all configurations from database (No initial block)
@@ -819,6 +840,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             document.getElementById("tagText").value = config.tag || "";
             document.getElementById("pfpId").value = extractAssetDigits(config.image || "");
             document.getElementById("bannerId").value = extractAssetDigits(config.bgImage || "");
+            document.getElementById("hideTag").checked = config.hideTag === true;
+            document.getElementById("hideDisplayName").checked = config.hideDisplayName === true;
 
             // Colors setup
             document.getElementById("bgColorPicker").value = rgbToHex(config.primaryColor || [20, 20, 20]);
@@ -877,7 +900,9 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
                 config: {
                     tag: tagText,
                     primaryColor: hexToRgb(document.getElementById("bgColorPicker").value),
-                    displayNameColor: hexToRgb(document.getElementById("userColorPicker").value)
+                    displayNameColor: hexToRgb(document.getElementById("userColorPicker").value),
+                    hideTag: document.getElementById("hideTag").checked,
+                    hideDisplayName: document.getElementById("hideDisplayName").checked
                 }
             };
 
@@ -983,6 +1008,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             document.getElementById("useGradient").checked = false;
             document.getElementById("solid-text-picker").classList.remove("hidden");
             document.getElementById("gradient-pickers").classList.add("hidden");
+            document.getElementById("hideTag").checked = false;
+            document.getElementById("hideDisplayName").checked = false;
             document.getElementById("delete-btn").classList.add("hidden");
             updatePreview();
         }
