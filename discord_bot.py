@@ -1535,6 +1535,23 @@ async def remove_member_claims_by_roles_or_leave(member, roles_removed_ids=None)
                 
         print(f"Auto-removing {len(keys_to_delete)} claims for Discord User {member.name} due to role removal or leaving server.")
         update_json_in_github("booster.json", data, f"Auto-remove claims for Discord {discord_id} due to role/leave event", sha)
+        
+        # Also clean up from Tags.json (their custom nametag styling config)
+        tags_success, tags_sha, tags_data = fetch_from_github()
+        if tags_success and tags_data:
+            tags_changed = False
+            tags_players = tags_data.get("players", {})
+            for claim_key, roblox_lower in keys_to_delete:
+                if roblox_lower in tags_players:
+                    del tags_players[roblox_lower]
+                    tags_changed = True
+            if tags_changed:
+                try:
+                    with open(JSON_FILE_PATH, 'w', encoding='utf-8') as f:
+                        json.dump(tags_data, f, indent=2)
+                except Exception:
+                    pass
+                update_json_in_github(JSON_FILE_PATH, tags_data, f"Auto-remove custom tags for Discord {discord_id} due to role/leave event", tags_sha)
 
 # ================= Discord Bot Commands =================
 
