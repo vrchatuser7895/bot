@@ -1,7 +1,6 @@
 {
   "players": {
     "aavoxbtw": "SUPPORT",
-    "igstarpc": "STAFF",
     "toshiroloper": "HEAD STAFF",
     "blaze_xzxy": "BOOSTER",
     "unknown7789980": "STAFF",
@@ -11,11 +10,6 @@
     "1010517937960009788": {
       "roblox_username": "aavoxbtw",
       "role": "SUPPORT"
-    },
-    "1304871527249874957_STAFF": {
-      "roblox_username": "Igstarpc",
-      "role": "STAFF",
-      "discord_id": "1304871527249874957"
     },
     "1271021258259169360_HEAD STAFF": {
       "roblox_username": "toshiroloper",
