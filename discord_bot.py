@@ -733,8 +733,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             // Visibility updates
             const hideTag = document.getElementById("hideTag").checked;
             const hideDisplayName = document.getElementById("hideDisplayName").checked;
-            emRank.style.display = hideTag ? "none" : "block";
-            emUser.style.display = hideDisplayName ? "none" : "block";
+            emRank.style.visibility = hideTag ? "hidden" : "visible";
+            emUser.style.visibility = hideDisplayName ? "hidden" : "visible";
         }
 
         // Fetch all configurations from database (No initial block)
@@ -1067,6 +1067,12 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
         self.send_cors_headers()
         self.end_headers()
 
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html; charset=utf-8")
+        self.send_cors_headers()
+        self.end_headers()
+
     def do_GET(self):
         if self.path == "/":
             self.send_response(200)
@@ -1081,6 +1087,44 @@ class ControlPanelHandler(BaseHTTPRequestHandler):
             self.send_cors_headers()
             self.end_headers()
             self.wfile.write(json.dumps({"success": success, "data": data, "error": sha if not success else None}).encode("utf-8"))
+        elif self.path == "/raw/tags":
+            if os.path.exists(JSON_FILE_PATH):
+                try:
+                    with open(JSON_FILE_PATH, "r", encoding="utf-8") as f:
+                        content = f.read().encode("utf-8")
+                except Exception:
+                    _, _, data = fetch_from_github()
+                    content = json.dumps(data).encode("utf-8")
+            else:
+                _, _, data = fetch_from_github()
+                content = json.dumps(data).encode("utf-8")
+                
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("Connection", "close")
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(content)
+        elif self.path == "/raw/booster":
+            if os.path.exists("booster.json"):
+                try:
+                    with open("booster.json", "r", encoding="utf-8") as f:
+                        content = f.read().encode("utf-8")
+                except Exception:
+                    _, _, data = fetch_json_from_github("booster.json")
+                    content = json.dumps(data).encode("utf-8")
+            else:
+                _, _, data = fetch_json_from_github("booster.json")
+                content = json.dumps(data).encode("utf-8")
+                
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("Connection", "close")
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(content)
         elif self.path.startswith("/api/thumbnail"):
             from urllib.parse import urlparse, parse_qs
             parsed = urlparse(self.path)
