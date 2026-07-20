@@ -70,24 +70,31 @@
       "createdBy": "Access cispn"
     },
     "itskazuyama": {
-      "tag": "\u200b",
+      "tag": "KAZU",
       "primaryColor": [
         20,
         20,
         20
       ],
       "displayNameColor": [
-        255,
-        255,
-        255
+        163,
+        149,
+        149
       ],
       "hideTag": false,
       "hideDisplayName": false,
       "bgImage": "rbxassetid://102646709539405",
-      "textColor": [
-        255,
-        255,
-        255
+      "textGradient": [
+        [
+          68,
+          64,
+          64
+        ],
+        [
+          255,
+          255,
+          255
+        ]
       ],
       "createdBy": "Access cispn"
     }
