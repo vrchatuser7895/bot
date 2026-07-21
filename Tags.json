@@ -59,8 +59,8 @@
         7,
         7
       ],
-      "hideTag": false,
-      "hideDisplayName": false,
+      "hideTag": true,
+      "hideDisplayName": true,
       "bgImage": "rbxassetid://102646709539405",
       "textGradient": [
         [
