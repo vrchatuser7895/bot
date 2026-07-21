@@ -75,35 +75,6 @@
         ]
       ],
       "createdBy": "Access cispn"
-    },
-    "igstarpc": {
-      "tag": "KAZU",
-      "primaryColor": [
-        20,
-        20,
-        20
-      ],
-      "displayNameColor": [
-        49,
-        7,
-        7
-      ],
-      "hideTag": true,
-      "hideDisplayName": true,
-      "bgImage": "rbxassetid://102646709539405",
-      "textGradient": [
-        [
-          68,
-          64,
-          64
-        ],
-        [
-          255,
-          255,
-          255
-        ]
-      ],
-      "createdBy": "Access cispn"
     }
   },
   "claims": {}
