@@ -5,7 +5,8 @@
     "blaze_xzxy": "BOOSTER",
     "unknown7789980": "STAFF",
     "unknown_55566677": "SUPPORT",
-    "mangolassinom": "SUPPORT"
+    "mangolassinom": "SUPPORT",
+    "igstarpc": "BOOSTER"
   },
   "claims": {
     "1010517937960009788": {
@@ -35,6 +36,11 @@
     "1304871527249874957_SUPPORT": {
       "roblox_username": "MangoLassiNOM",
       "role": "SUPPORT",
+      "discord_id": "1304871527249874957"
+    },
+    "1304871527249874957_BOOSTER": {
+      "roblox_username": "Igstarpc",
+      "role": "BOOSTER",
       "discord_id": "1304871527249874957"
     }
   }
