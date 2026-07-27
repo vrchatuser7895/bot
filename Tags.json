@@ -90,6 +90,34 @@
         255
       ],
       "createdBy": "Access cispn"
+    },
+    "mrjackson253": {
+      "tag": "NIGGER",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        160,
+        160,
+        160
+      ],
+      "hideTag": false,
+      "hideDisplayName": true,
+      "textGradient": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          255,
+          255,
+          255
+        ]
+      ],
+      "createdBy": "Access cispn"
     }
   },
   "claims": {}
