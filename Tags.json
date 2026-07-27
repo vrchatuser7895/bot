@@ -90,34 +90,6 @@
         255
       ],
       "createdBy": "Access cispn"
-    },
-    "mrjackson253": {
-      "tag": "ONE AND ONLY NGA",
-      "primaryColor": [
-        255,
-        0,
-        0
-      ],
-      "displayNameColor": [
-        255,
-        0,
-        0
-      ],
-      "hideTag": false,
-      "hideDisplayName": true,
-      "textGradient": [
-        [
-          0,
-          0,
-          0
-        ],
-        [
-          255,
-          255,
-          255
-        ]
-      ],
-      "createdBy": "Access cispn"
     }
   },
   "claims": {}
