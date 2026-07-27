@@ -6,7 +6,8 @@
     "unknown_55566677": "SUPPORT",
     "painne48": "BOOSTER",
     "davidputra7777777": "SUPPORT",
-    "mangolassinom": "SUPPORT"
+    "mangolassinom": "SUPPORT",
+    "smuffy": "STAFF"
   },
   "claims": {
     "1375882253045076108_STAFF": {
@@ -43,6 +44,11 @@
       "roblox_username": "MangoLassiNOM",
       "role": "SUPPORT",
       "discord_id": "1304871527249874957"
+    },
+    "171254627654828032_STAFF": {
+      "roblox_username": "smuffy",
+      "role": "STAFF",
+      "discord_id": "171254627654828032"
     }
   }
 }
