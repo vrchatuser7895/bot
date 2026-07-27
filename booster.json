@@ -4,7 +4,8 @@
     "mangolassinom": "SUPPORT",
     "itskazuyama": "BOOSTER",
     "blaze_xzxy": "SUPPORT",
-    "unknown_55566677": "SUPPORT"
+    "unknown_55566677": "SUPPORT",
+    "painne48": "BOOSTER"
   },
   "claims": {
     "1375882253045076108_STAFF": {
@@ -31,6 +32,11 @@
       "roblox_username": "Blaze_xzxy",
       "role": "SUPPORT",
       "discord_id": "878661647579902013"
+    },
+    "1182876737827246210_BOOSTER": {
+      "roblox_username": "painne48",
+      "role": "BOOSTER",
+      "discord_id": "1182876737827246210"
     }
   }
 }
