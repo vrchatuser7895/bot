@@ -1,7 +1,6 @@
 {
   "players": {
     "unknown7789980": "STAFF",
-    "mangolassinom": "SUPPORT",
     "itskazuyama": "BOOSTER",
     "blaze_xzxy": "SUPPORT",
     "unknown_55566677": "SUPPORT",
@@ -18,11 +17,6 @@
       "roblox_username": "unknown_55566677",
       "role": "SUPPORT",
       "discord_id": "1375882253045076108"
-    },
-    "1304871527249874957_SUPPORT": {
-      "roblox_username": "MangoLassiNOM",
-      "role": "SUPPORT",
-      "discord_id": "1304871527249874957"
     },
     "1304871527249874957_BOOSTER": {
       "roblox_username": "itskazuyama",
