@@ -68,35 +68,6 @@
         255
       ],
       "createdBy": "Access cispn"
-    },
-    "painne48": {
-      "tag": "NIGGA MAN",
-      "primaryColor": [
-        20,
-        20,
-        20
-      ],
-      "displayNameColor": [
-        226,
-        36,
-        0
-      ],
-      "hideTag": false,
-      "hideDisplayName": true,
-      "bgImage": "rbxassetid://94538369093087",
-      "textGradient": [
-        [
-          0,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0
-        ]
-      ],
-      "createdBy": "Access cispn"
     }
   },
   "claims": {}
