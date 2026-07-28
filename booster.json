@@ -6,7 +6,8 @@
     "davidputra7777777": "SUPPORT",
     "mangolassinom": "SUPPORT",
     "smuffy": "STAFF",
-    "unknown_55566677": "STAFF"
+    "unknown_55566677": "STAFF",
+    "aavox1": "SUPPORT"
   },
   "claims": {
     "1375882253045076108_STAFF": {
@@ -43,6 +44,11 @@
       "roblox_username": "smuffy",
       "role": "STAFF",
       "discord_id": "171254627654828032"
+    },
+    "1010517937960009788_SUPPORT": {
+      "roblox_username": "aavox1",
+      "role": "SUPPORT",
+      "discord_id": "1010517937960009788"
     }
   }
 }
