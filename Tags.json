@@ -70,7 +70,7 @@
       "createdBy": "Access cispn"
     },
     "painne48": {
-      "tag": "CUTENIGGA",
+      "tag": "NIGGA MAN",
       "primaryColor": [
         20,
         20,
@@ -82,19 +82,18 @@
         0
       ],
       "hideTag": false,
-      "hideDisplayName": false,
+      "hideDisplayName": true,
       "bgImage": "rbxassetid://94538369093087",
-      "image": "rbxassetid://109980177847782",
       "textGradient": [
         [
-          254,
-          144,
-          208
+          0,
+          0,
+          0
         ],
         [
           0,
-          97,
-          254
+          0,
+          0
         ]
       ],
       "createdBy": "Access cispn"
