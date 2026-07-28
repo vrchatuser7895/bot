@@ -68,6 +68,36 @@
         255
       ],
       "createdBy": "Access cispn"
+    },
+    "painne48": {
+      "tag": "UwuGIRL",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        226,
+        36,
+        0
+      ],
+      "hideTag": false,
+      "hideDisplayName": false,
+      "bgImage": "rbxassetid://94538369093087",
+      "image": "rbxassetid://109980177847782",
+      "textGradient": [
+        [
+          254,
+          144,
+          208
+        ],
+        [
+          0,
+          97,
+          254
+        ]
+      ],
+      "createdBy": "Access cispn"
     }
   },
   "claims": {}
