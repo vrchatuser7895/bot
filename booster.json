@@ -10,7 +10,8 @@
     "unknown_55566677": "HEAD STAFF",
     "mrjackson253": "SUPPORT",
     "mikuchan_4504": "SUPPORT",
-    "davidputra7000": "SUPPORT"
+    "davidputra7000": "SUPPORT",
+    "davidputra7777777": "STAFF"
   },
   "claims": {
     "1375882253045076108_STAFF": {
@@ -67,6 +68,11 @@
       "roblox_username": "mikuchan_4504",
       "role": "SUPPORT",
       "discord_id": "1375882253045076108"
+    },
+    "1284140591453835417_STAFF": {
+      "roblox_username": "davidputra7777777",
+      "role": "STAFF",
+      "discord_id": "1284140591453835417"
     }
   }
 }
