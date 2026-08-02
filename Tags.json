@@ -92,24 +92,24 @@
       "createdBy": "Access cispn"
     },
     "blaze_xzxy": {
-      "tag": "dd",
+      "tag": "\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e NIGGER",
       "primaryColor": [
-        20,
-        20,
-        20
+        245,
+        0,
+        0
       ],
       "displayNameColor": [
-        160,
-        160,
-        160
+        255,
+        0,
+        0
       ],
-      "hideTag": true,
+      "hideTag": false,
       "hideDisplayName": true,
-      "bgImage": "rbxassetid://94413059144949",
+      "bgImage": "rbxassetid://99122455693550",
       "textColor": [
-        255,
-        255,
-        255
+        0,
+        0,
+        0
       ],
       "createdBy": "Access cispn"
     }
