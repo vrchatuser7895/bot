@@ -92,7 +92,7 @@
       "createdBy": "Access cispn"
     },
     "blaze_xzxy": {
-      "tag": "\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e blaze ..",
+      "tag": "Blaze",
       "primaryColor": [
         20,
         20,
@@ -105,11 +105,12 @@
       ],
       "hideTag": false,
       "hideDisplayName": true,
-      "bgImage": "rbxassetid://110997139966911",
+      "bgImage": "rbxassetid://90737239054488",
+      "image": "rbxassetid://132678005842294",
       "textColor": [
-        0,
-        0,
-        0
+        255,
+        255,
+        255
       ],
       "createdBy": "Access cispn"
     }
