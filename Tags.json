@@ -103,10 +103,9 @@
         160,
         160
       ],
-      "hideTag": false,
+      "hideTag": true,
       "hideDisplayName": true,
-      "bgImage": "rbxassetid://90737239054488",
-      "image": "rbxassetid://132678005842294",
+      "bgImage": "rbxassetid://94413059144949",
       "textColor": [
         255,
         255,
