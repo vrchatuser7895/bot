@@ -90,6 +90,28 @@
         255
       ],
       "createdBy": "Access cispn"
+    },
+    "kixbyi": {
+      "tag": "dwad",
+      "primaryColor": [
+        20,
+        20,
+        20
+      ],
+      "displayNameColor": [
+        160,
+        160,
+        160
+      ],
+      "hideTag": true,
+      "hideDisplayName": true,
+      "bgImage": "rbxassetid://115569068641478",
+      "textColor": [
+        255,
+        255,
+        255
+      ],
+      "createdBy": "Access cispn"
     }
   },
   "claims": {}
