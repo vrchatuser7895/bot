@@ -9,7 +9,8 @@
     "mrjackson253": "SUPPORT",
     "davidputra7000": "SUPPORT",
     "davidputra7777777": "STAFF",
-    "lunawrzz": "SUPPORT"
+    "lunawrzz": "SUPPORT",
+    "itskazuyama": "HEAD STAFF"
   },
   "claims": {
     "1375882253045076108_STAFF": {
@@ -61,6 +62,11 @@
       "roblox_username": "davidputra7777777",
       "role": "STAFF",
       "discord_id": "1284140591453835417"
+    },
+    "1304871527249874957_HEAD STAFF": {
+      "roblox_username": "itskazuyama",
+      "role": "HEAD STAFF",
+      "discord_id": "1304871527249874957"
     }
   }
 }
