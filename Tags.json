@@ -65,27 +65,6 @@
         255
       ],
       "createdBy": "Access cispn"
-    },
-    "itskazuyama": {
-      "tag": "NIGGER",
-      "primaryColor": [
-        255,
-        0,
-        0
-      ],
-      "displayNameColor": [
-        160,
-        160,
-        160
-      ],
-      "hideTag": false,
-      "hideDisplayName": true,
-      "textColor": [
-        0,
-        0,
-        0
-      ],
-      "createdBy": "Access cispn"
     }
   },
   "claims": {}
