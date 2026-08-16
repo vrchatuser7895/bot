@@ -67,7 +67,7 @@
       "createdBy": "Access cispn"
     },
     "igstarpc": {
-      "tag": "NIGGER",
+      "tag": "d",
       "primaryColor": [
         0,
         0,
@@ -78,24 +78,13 @@
         255,
         255
       ],
-      "hideTag": false,
+      "hideTag": true,
       "hideDisplayName": true,
-      "borderColor": [
+      "bgImage": "rbxassetid://94413059144949",
+      "textColor": [
         255,
-        0,
-        0
-      ],
-      "textGradient": [
-        [
-          255,
-          255,
-          255
-        ],
-        [
-          0,
-          0,
-          0
-        ]
+        255,
+        255
       ],
       "createdBy": "Access cispn"
     }
