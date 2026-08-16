@@ -21,9 +21,13 @@ def parse_hex_color(hex_str):
         return None
 
 def format_asset_id(asset_id):
-    if not asset_id or asset_id.lower() == "none":
+    if not asset_id or asset_id.lower() in ["none", "skip"]:
         return ""
     asset_id = asset_id.strip()
+    if asset_id.startswith("http://") or asset_id.startswith("https://"):
+        return asset_id
+    if asset_id.startswith("rbxassetid://") or asset_id.startswith("rbxasset://") or asset_id.startswith("rbxthumb://"):
+        return asset_id
     if not asset_id.isdigit():
         digits = re.findall(r'\d+', asset_id)
         if digits:
