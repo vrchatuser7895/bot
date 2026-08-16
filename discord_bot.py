@@ -537,12 +537,12 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
 
             <div class="color-picker-row">
                 <div class="form-group">
-                    <label for="pfpId">PFP Asset ID (Optional)</label>
-                    <input type="text" id="pfpId" class="form-control" placeholder="e.g. 128634152988614" oninput="updatePreview()">
+                    <label for="pfpId">PFP Image (URL or Asset ID)</label>
+                    <input type="text" id="pfpId" class="form-control" placeholder="e.g. https://i.imgur.com/... or 128634152988614" oninput="updatePreview()">
                 </div>
                 <div class="form-group">
-                    <label for="bannerId">Banner Asset ID (Optional)</label>
-                    <input type="text" id="bannerId" class="form-control" placeholder="e.g. 137782422455419" oninput="updatePreview()">
+                    <label for="bannerId">Banner Image (URL or Asset ID)</label>
+                    <input type="text" id="bannerId" class="form-control" placeholder="e.g. https://i.imgur.com/... or 137782422455419" oninput="updatePreview()">
                 </div>
             </div>
 
@@ -635,8 +635,34 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
         }
 
+        function sanitizeImageInput(val) {
+            if (!val) return "";
+            val = val.trim();
+            if (val.startsWith("http://") || val.startsWith("https://")) {
+                return val;
+            }
+            if (val.startsWith("rbxassetid://") || val.startsWith("rbxasset://") || val.startsWith("rbxthumb://")) {
+                return val;
+            }
+            const digits = val.match(/\d+/);
+            return digits ? `rbxassetid://${digits[0]}` : val;
+        }
+
+        function displayImageValue(val) {
+            if (!val) return "";
+            val = val.trim();
+            if (val.startsWith("http://") || val.startsWith("https://")) {
+                return val;
+            }
+            if (val.startsWith("rbxassetid://")) {
+                return val.replace("rbxassetid://", "");
+            }
+            return val;
+        }
+
         function extractAssetDigits(assetId) {
             if (!assetId) return "";
+            assetId = assetId.trim();
             if (assetId.startsWith("http://") || assetId.startsWith("https://")) {
                 if (assetId.includes("id=")) {
                     const match = assetId.match(/id=(\d+)/);
@@ -670,13 +696,15 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             document.getElementById("gradEndHex").innerText = document.getElementById("gradEndPicker").value.toUpperCase();
 
             // Background & Banner
-            const bannerId = extractAssetDigits(document.getElementById("bannerId").value.trim());
+            const bannerVal = document.getElementById("bannerId").value.trim();
             const bgColor = document.getElementById("bgColorPicker").value;
-            if (bannerId) {
-                if (bannerId.startsWith("http")) {
-                    emulator.style.backgroundImage = `url('${bannerId}')`;
+            if (bannerVal) {
+                if (bannerVal.startsWith("http://") || bannerVal.startsWith("https://")) {
+                    emulator.style.backgroundImage = `url('${bannerVal}')`;
                 } else {
-                    emulator.style.backgroundImage = `url('${apiPrefix}/api/thumbnail?id=${bannerId}&size=420x420')`;
+                    const digits = bannerVal.match(/\d+/);
+                    const assetId = digits ? digits[0] : bannerVal;
+                    emulator.style.backgroundImage = `url('${apiPrefix}/api/thumbnail?id=${assetId}&size=420x420')`;
                 }
                 emulator.style.backgroundSize = "cover";
                 emulator.style.backgroundPosition = "center";
@@ -686,13 +714,15 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             }
 
             // PFP
-            const pfpId = extractAssetDigits(document.getElementById("pfpId").value.trim());
-            if (pfpId) {
+            const pfpVal = document.getElementById("pfpId").value.trim();
+            if (pfpVal) {
                 emPfp.classList.remove("hidden");
-                if (pfpId.startsWith("http")) {
-                    emPfp.style.backgroundImage = `url('${pfpId}')`;
+                if (pfpVal.startsWith("http://") || pfpVal.startsWith("https://")) {
+                    emPfp.style.backgroundImage = `url('${pfpVal}')`;
                 } else {
-                    emPfp.style.backgroundImage = `url('${apiPrefix}/api/thumbnail?id=${pfpId}&size=150x150')`;
+                    const digits = pfpVal.match(/\d+/);
+                    const assetId = digits ? digits[0] : pfpVal;
+                    emPfp.style.backgroundImage = `url('${apiPrefix}/api/thumbnail?id=${assetId}&size=150x150')`;
                 }
             } else if (tagText.toLowerCase() === "xnoctis") {
                 emPfp.classList.remove("hidden");
@@ -838,8 +868,8 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             activeEditUser = username;
             document.getElementById("username").value = username;
             document.getElementById("tagText").value = config.tag || "";
-            document.getElementById("pfpId").value = extractAssetDigits(config.image || "");
-            document.getElementById("bannerId").value = extractAssetDigits(config.bgImage || "");
+            document.getElementById("pfpId").value = displayImageValue(config.image || "");
+            document.getElementById("bannerId").value = displayImageValue(config.bgImage || "");
             document.getElementById("hideTag").checked = config.hideTag === true;
             document.getElementById("hideDisplayName").checked = config.hideDisplayName === true;
 
@@ -907,12 +937,12 @@ HTML_PANEL_CONTENT = """<!DOCTYPE html>
             };
 
             // Banner image
-            const bannerId = extractAssetDigits(document.getElementById("bannerId").value.trim());
-            if (bannerId) payload.config.bgImage = `rbxassetid://${bannerId}`;
+            const bannerVal = document.getElementById("bannerId").value.trim();
+            if (bannerVal) payload.config.bgImage = sanitizeImageInput(bannerVal);
 
             // PFP image
-            const pfpId = extractAssetDigits(document.getElementById("pfpId").value.trim());
-            if (pfpId) payload.config.image = `rbxassetid://${pfpId}`;
+            const pfpVal = document.getElementById("pfpId").value.trim();
+            if (pfpVal) payload.config.image = sanitizeImageInput(pfpVal);
 
             // Border
             if (document.getElementById("useBorder").checked) {
@@ -1316,6 +1346,10 @@ def format_asset_id(asset_id):
     if not asset_id or asset_id.lower() in ["none", "skip"]:
         return ""
     asset_id = asset_id.strip()
+    if asset_id.startswith("http://") or asset_id.startswith("https://"):
+        return asset_id
+    if asset_id.startswith("rbxassetid://") or asset_id.startswith("rbxasset://") or asset_id.startswith("rbxthumb://"):
+        return asset_id
     if not asset_id.isdigit():
         digits = re.findall(r'\d+', asset_id)
         if digits:
