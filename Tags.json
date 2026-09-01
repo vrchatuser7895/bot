@@ -65,28 +65,6 @@
         255
       ],
       "createdBy": "Access cispn"
-    },
-    "igstarpc": {
-      "tag": "dad",
-      "primaryColor": [
-        20,
-        20,
-        20
-      ],
-      "displayNameColor": [
-        160,
-        160,
-        160
-      ],
-      "hideTag": true,
-      "hideDisplayName": true,
-      "bgImage": "rbxassetid://71008966230338",
-      "textColor": [
-        255,
-        255,
-        255
-      ],
-      "createdBy": "Access cispn"
     }
   },
   "claims": {}
