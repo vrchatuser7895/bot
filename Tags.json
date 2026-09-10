@@ -78,25 +78,13 @@
         0,
         0
       ],
-      "hideTag": false,
+      "hideTag": true,
       "hideDisplayName": true,
       "bgImage": "rbxassetid://71008966230338",
-      "borderColor": [
+      "textColor": [
         255,
-        0,
-        0
-      ],
-      "textGradient": [
-        [
-          255,
-          255,
-          255
-        ],
-        [
-          28,
-          28,
-          28
-        ]
+        255,
+        255
       ],
       "createdBy": "Access cispn"
     }
