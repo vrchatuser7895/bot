@@ -67,24 +67,36 @@
       "createdBy": "Access cispn"
     },
     "igstarpc": {
-      "tag": "dd",
+      "tag": "NIGGER",
       "primaryColor": [
-        20,
-        20,
-        20
-      ],
-      "displayNameColor": [
-        160,
-        160,
-        160
-      ],
-      "hideTag": true,
-      "hideDisplayName": true,
-      "bgImage": "rbxassetid://71008966230338",
-      "textColor": [
         255,
         255,
         255
+      ],
+      "displayNameColor": [
+        0,
+        0,
+        0
+      ],
+      "hideTag": false,
+      "hideDisplayName": true,
+      "bgImage": "rbxassetid://71008966230338",
+      "borderColor": [
+        255,
+        0,
+        0
+      ],
+      "textGradient": [
+        [
+          255,
+          255,
+          255
+        ],
+        [
+          28,
+          28,
+          28
+        ]
       ],
       "createdBy": "Access cispn"
     }
